@@ -19,7 +19,6 @@ class Roles(commands.Cog):
         self.bot.role_log_channel_id = settings['role_log_channel_id']
         self.bot.allowed_roles = settings['allowed_roles']
 
-
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def setrole(self, ctx):
@@ -49,7 +48,6 @@ class Roles(commands.Cog):
 
         with open('./config/roles.yml', 'w') as file:
             yaml.dump(data, file)
-
 
     @commands.command()
     async def give(self, ctx, *role_names):
@@ -82,7 +80,6 @@ class Roles(commands.Cog):
 
         await asyncio.sleep(2.5)
         await ctx.message.delete()
-
 
     @commands.command()
     async def remove(self, ctx, *role_names):
