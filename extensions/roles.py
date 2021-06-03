@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import asyncio
 from ruamel.yaml import YAML
+from lib.discordscroll.discordscroll import DiscordScrollHandler
 
 yaml = YAML()
 
@@ -26,6 +27,9 @@ class Roles(commands.Cog):
         self.role_channel_id = settings['role_channel_id']
         self.role_log_channel_id = settings['role_log_channel_id']
         self.allowedroles = settings['allowed_roles']
+
+        scroll_ttl = 60  # The time in seconds that a scroll will work
+        self.scroll_handler = DiscordScrollHandler(scroll_ttl)
 
     @commands.command()
     async def give(self, ctx, *role_names):
@@ -187,6 +191,18 @@ class Roles(commands.Cog):
             
         await asyncio.sleep(2.5)
         await ctx.message.delete()
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def allowedroles(self, ctx, *role_names):
+        title = "Allowed Roles"
+        pages = ['\n'.join(self.allowedroles[i:i+10]) for i in range(0,len(self.allowedroles),10)]
+
+        await self.scroll_handler.new(ctx, title, pages)
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        await self.scroll_handler.handle_reaction(reaction, user)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
