@@ -2,12 +2,14 @@ import discord
 from discord.ext import commands
 
 import os
-import yaml
+from ruamel.yaml import YAML
 from dotenv import load_dotenv
+
+yaml = YAML()
 
 # Load settings file and set variables
 with open('./config/settings.yml') as file:
-    settings = yaml.full_load(file)
+    settings = yaml.load(file)
 
 BOT_PREFIX = settings['prefix']
 
