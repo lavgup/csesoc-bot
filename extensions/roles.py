@@ -23,17 +23,17 @@ class Roles(commands.Cog):
         with open('./config/roles.yml') as file:
             settings = yaml.load(file)
 
-        self.bot.role_channel_id = settings['role_channel_id']
-        self.bot.role_log_channel_id = settings['role_log_channel_id']
-        self.bot.allowed_roles = settings['allowed_roles']
+        self.role_channel_id = settings['role_channel_id']
+        self.role_log_channel_id = settings['role_log_channel_id']
+        self.allowedroles = settings['allowed_roles']
 
     @commands.command()
     async def give(self, ctx, *role_names):
-        if ctx.message.channel.id != self.bot.role_channel_id:
+        if ctx.message.channel.id != self.role_channel_id:
             return
 
         user = ctx.message.author
-        log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
+        log_channel = self.bot.get_channel(self.role_log_channel_id)
         success = False
 
         for role_name in role_names:
@@ -45,7 +45,7 @@ class Roles(commands.Cog):
             elif role in user.roles:
                 await ctx.send(f"❌ Failed to give {role_name} to {user}. You already have this role", delete_after=2)
                 await log_channel.send(f"❌ Failed to give {role_name} to {user} (user already has role)")
-            elif role_name.lower() not in (role.lower() for role in self.bot.allowed_roles):
+            elif role_name.lower() not in (role.lower() for role in self.allowedroles):
                 await ctx.send(f"❌ Failed to give {role_name} to {user}. You do not have permission to give yourself this role", delete_after=2)
                 await log_channel.send(f"❌ Failed to give {role_name} to {user} (role not on whitelist)")
             else:
@@ -62,11 +62,11 @@ class Roles(commands.Cog):
 
     @commands.command()
     async def remove(self, ctx, *role_names):
-        if ctx.message.channel.id != self.bot.role_channel_id:
+        if ctx.message.channel.id != self.role_channel_id:
             return
 
         user = ctx.message.author
-        log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
+        log_channel = self.bot.get_channel(self.role_log_channel_id)
         success = False
 
         for role_name in role_names:
@@ -93,9 +93,9 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def setrole(self, ctx):
-        self.bot.role_channel_id = ctx.channel.id
-        await ctx.send(f"Set <#{self.bot.role_channel_id}> as role channel.")
-        print(f"Set {self.bot.role_channel_id} as default role channel")
+        self.role_channel_id = ctx.channel.id
+        await ctx.send(f"Set <#{self.role_channel_id}> as role channel.")
+        print(f"Set {self.role_channel_id} as default role channel")
         
         with open('./config/roles.yml') as file:
             data = yaml.load(file)
@@ -108,9 +108,9 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def setrolelog(self, ctx):
-        self.bot.role_log_channel_id = ctx.channel.id
-        await ctx.send(f"Set <#{self.bot.role_log_channel_id}> as default role log channel.")
-        print(f"Set {self.bot.role_log_channel_id} as default role log channel")
+        self.role_log_channel_id = ctx.channel.id
+        await ctx.send(f"Set <#{self.role_log_channel_id}> as default role log channel.")
+        print(f"Set {self.role_log_channel_id} as default role log channel")
 
         with open('./config/roles.yml') as file:
             data = yaml.load(file)
@@ -123,18 +123,18 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *role_names):
-        if ctx.message.channel.id != self.bot.role_channel_id:
+        if ctx.message.channel.id != self.role_channel_id:
             return
 
-        log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
+        log_channel = self.bot.get_channel(self.role_log_channel_id)
         success = False
 
         for role_name in role_names:
-            if role_name.lower() in (role.lower() for role in self.bot.allowed_roles):
+            if role_name.lower() in (role.lower() for role in self.allowedroles):
                 await ctx.send(f"❌ {role_name} is already on the whitelist.", delete_after=2)
                 await log_channel.send(f"❌ {role_name} is already on the whitelist.")
             else:
-                self.bot.allowed_roles.append(role_name)
+                self.allowedroles.append(role_name)
 
                 with open('./config/roles.yml') as file:
                     role_data = yaml.load(file)
@@ -157,18 +157,18 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *role_names):
-        if ctx.message.channel.id != self.bot.role_channel_id:
+        if ctx.message.channel.id != self.role_channel_id:
             return
 
-        log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
+        log_channel = self.bot.get_channel(self.role_log_channel_id)
         success = False
 
         for role_name in role_names:
-            if role_name.lower() not in (role.lower() for role in self.bot.allowed_roles):
+            if role_name.lower() not in (role.lower() for role in self.allowedroles):
                 await ctx.send(f"❌ {role_name} is not currently on the whitelist.", delete_after=2)
                 await log_channel.send(f"❌ {role_name} is not currently on the whitelist.")
             else:
-                self.bot.allowed_roles.remove(role_name)
+                self.allowedroles.remove(role_name)
 
                 with open('./config/roles.yml') as file:
                     role_data = yaml.load(file)
