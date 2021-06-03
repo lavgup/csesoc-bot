@@ -128,17 +128,9 @@ class Roles(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *role_names):
-        if ctx.message.channel.id != self.role_channel_id:
-            return
-
-        log_channel = self.bot.get_channel(self.role_log_channel_id)
-        success = True
-
         for role_name in role_names:
             if role_name.lower() in (role.lower() for role in self.allowedroles):
-                await ctx.send(f"❌ {role_name} is already on the whitelist.", delete_after=2)
-                await log_channel.send(f"❌ {role_name} is already on the whitelist.")
-                success = False
+                await ctx.send(f"❌ {role_name} is already on the whitelist.")
             else:
                 self.allowedroles.append(role_name)
 
@@ -150,29 +142,14 @@ class Roles(commands.Cog):
                 with open('./config/roles.yml', 'w') as file:
                     yaml.dump(role_data, file)
 
-                await ctx.send(f"✅ Added {role_name} to the whitelist.", delete_after=2)
-                await log_channel.send(f"✅ Added {role_name} to the whitelist.")
-
-        if success:
-            await ctx.message.add_reaction("👍")
-            
-        await asyncio.sleep(2.5)
-        await ctx.message.delete()
+                await ctx.send(f"✅ Added {role_name} to the whitelist.")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *role_names):
-        if ctx.message.channel.id != self.role_channel_id:
-            return
-
-        log_channel = self.bot.get_channel(self.role_log_channel_id)
-        success = True
-
         for role_name in role_names:
             if role_name.lower() not in (role.lower() for role in self.allowedroles):
-                await ctx.send(f"❌ {role_name} is not currently on the whitelist.", delete_after=2)
-                await log_channel.send(f"❌ {role_name} is not currently on the whitelist.")
-                success = False
+                await ctx.send(f"❌ {role_name} is not currently on the whitelist.")
             else:
                 self.allowedroles.remove(role_name)
 
@@ -184,14 +161,7 @@ class Roles(commands.Cog):
                 with open('./config/roles.yml', 'w') as file:
                     yaml.dump(role_data, file)
 
-                await ctx.send(f"✅ Removed {role_name} from whitelist.", delete_after=2)
-                await log_channel.send(f"✅ Removed {role_name} from whitelist.")
-
-        if success:
-            await ctx.message.add_reaction("👍")
-            
-        await asyncio.sleep(2.5)
-        await ctx.message.delete()
+                await ctx.send(f"✅ Removed {role_name} from the whitelist.")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
