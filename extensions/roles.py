@@ -56,24 +56,25 @@ class Roles(commands.Cog):
 
         user = ctx.message.author
         log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
-        success = True
+        success = False
 
         for role_name in role_names:
-            try:
-                if role_name.lower() not in (role.lower() for role in self.bot.allowed_roles):
-                    raise PermissionError
-                role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+            role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+
+            if role is None:
+                await ctx.send(f'❌ Failed to give {role_name} to {user}. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`', delete_after=2)
+                await log_channel.send(f'❌ Failed to give {role_name} to {user} (role missing or invalid)')
+            elif role in user.roles:
+                await ctx.send(f'❌ Failed to give {role_name} to {user}. You already have this role', delete_after=2)
+                await log_channel.send(f'❌ Failed to give {role_name} to {user} (user already has role)')
+            elif role_name.lower() not in (role.lower() for role in self.bot.allowed_roles):
+                await ctx.send(f'❌ Failed to give {role_name} to {user}. You do not have permission to give yourself this role', delete_after=2)
+                await log_channel.send(f'❌ Failed to give {role_name} to {user} (role not on whitelist)')
+            else:
                 await user.add_roles(role)
                 await ctx.send(f'✅ Gave {role_name} to {user}', delete_after=2)
                 await log_channel.send(f'✅ Gave {role_name} to {user}')
-            except PermissionError:
-                await ctx.send(f'❌ Failed to give {role_name} to {user}. You do not have permission to give yourself this role', delete_after=2)
-                await log_channel.send(f'❌ Failed to give {role_name} to {user} (role not on whitelist)')
-                success = False
-            except:
-                await ctx.send(f'❌ Failed to give {role_name} to {user}. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`', delete_after=2)
-                await log_channel.send(f'❌ Failed to give {role_name} to {user} (role missing or invalid)')
-                success = False
+                success = True
 
         if success:
             await ctx.message.add_reaction("👍")
@@ -88,18 +89,22 @@ class Roles(commands.Cog):
 
         user = ctx.message.author
         log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
-        success = True
+        success = False
 
         for role_name in role_names:
-            try:
-                role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+            role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+
+            if role is None:
+                await ctx.send(f'❌ Failed to remove {role_name} from {user}. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`', delete_after=2)
+                await log_channel.send(f'❌ Failed to remove {role_name} from {user}')
+            elif role not in user.roles:
+                await ctx.send(f'❌ Failed to remove {role_name} from {user}. You do not have this role', delete_after=2)
+                await log_channel.send(f'❌ Failed to remove {role_name} from {user} (user does not have role)')
+            else:
                 await user.remove_roles(role)
                 await ctx.send(f'✅ Removed {role_name} from {user}', delete_after=2)
                 await log_channel.send(f'✅ Removed {role_name} from {user}')
-            except:
-                await ctx.send(f'❌ Failed to remove {role_name} from {user}. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`', delete_after=2)
-                await log_channel.send(f'❌ Failed to remove {role_name} from {user}')
-                success = False
+                success = True
 
         if success:
             await ctx.message.add_reaction("👍")
@@ -124,13 +129,12 @@ class Roles(commands.Cog):
             return
 
         log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
-        success = True
+        success = False
 
         for role_name in role_names:
             if role_name.lower() in (role.lower() for role in self.bot.allowed_roles):
                 await ctx.send(f'❌ {role_name} is already on the whitelist.', delete_after=2)
                 await log_channel.send(f'❌ {role_name} is already on the whitelist.')
-                success = False
             else:
                 self.bot.allowed_roles.append(role_name)
 
@@ -144,6 +148,7 @@ class Roles(commands.Cog):
 
                 await ctx.send(f'✅ Added {role_name} to the whitelist', delete_after=2)
                 await log_channel.send(f'✅ Added {role_name} to the whitelist')
+                success = True
 
         if success:
             await ctx.message.add_reaction("👍")
@@ -158,13 +163,12 @@ class Roles(commands.Cog):
             return
 
         log_channel = self.bot.get_channel(self.bot.role_log_channel_id)
-        success = True
+        success = False
 
         for role_name in role_names:
             if role_name.lower() not in (role.lower() for role in self.bot.allowed_roles):
                 await ctx.send(f'❌ {role_name} is not currently on the whitelist.', delete_after=2)
                 await log_channel.send(f'❌ {role_name} is not currently on the whitelist.')
-                success = False
             else:
                 self.bot.allowed_roles.remove(role_name)
 
@@ -178,6 +182,7 @@ class Roles(commands.Cog):
 
                 await ctx.send(f'✅ Removed {role_name} from whitelist', delete_after=2)
                 await log_channel.send(f'✅ Removed {role_name} from whitelist')
+                success = True
 
         if success:
             await ctx.message.add_reaction("👍")
