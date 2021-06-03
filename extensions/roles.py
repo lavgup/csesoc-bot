@@ -86,6 +86,10 @@ class Roles(commands.Cog):
                 await ctx.send(f"❌ Failed to remove {role_name} from {user}. You do not have this role.", delete_after=2)
                 await log_channel.send(f"❌ Failed to remove {role_name} from {user} (user does not have role).")
                 success = False
+            elif role_name.lower() not in (role.lower() for role in self.allowedroles):
+                await ctx.send(f"❌ Failed to remove {role_name} from {user}. You do not have permission to remove this role.", delete_after=2)
+                await log_channel.send(f"❌ Failed to remove {role_name} from {user} (role not on whitelist).")
+                success = False
             else:
                 await user.remove_roles(role)
                 await ctx.send(f"✅ Removed {role_name} from {user}.", delete_after=2)
