@@ -96,7 +96,7 @@ class Roles(commands.Cog):
 
             if role is None:
                 await ctx.send(f'❌ Failed to remove {role_name} from {user}. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`', delete_after=2)
-                await log_channel.send(f'❌ Failed to remove {role_name} from {user}')
+                await log_channel.send(f'❌ Failed to remove {role_name} from {user} (role missing or invalid)')
             elif role not in user.roles:
                 await ctx.send(f'❌ Failed to remove {role_name} from {user}. You do not have this role', delete_after=2)
                 await log_channel.send(f'❌ Failed to remove {role_name} from {user} (user does not have role)')
