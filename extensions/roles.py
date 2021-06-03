@@ -193,10 +193,10 @@ class Roles(commands.Cog):
     async def countmembers(self, ctx, *, role_name):
         role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
 
-        try:
-            await ctx.send(f"`{role_name}` has {len(role.members)} members")
-        except:
+        if role is None:
             await ctx.send(f"`{role_name}` was not found. Please make sure the spelling is correct")
+        else:
+            await ctx.send(f"`{role_name}` has {len(role.members)} members")
 
 
 def setup(bot):
