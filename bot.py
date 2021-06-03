@@ -21,7 +21,7 @@ else:
     BOT_TOKEN = settings['token']
 
 # TODO: Move this to config file
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 
 # Initialise bot
 bot = commands.Bot(command_prefix=BOT_PREFIX, intents=intents)
