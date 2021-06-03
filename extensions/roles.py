@@ -169,7 +169,7 @@ class Roles(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def allowedroles(self, ctx, *role_names):
+    async def allowedroles(self, ctx):
         title = "Allowed Roles"
         pages = ['\n'.join(self.allowedroles[i:i+10]) for i in range(0,len(self.allowedroles),10)]
 
