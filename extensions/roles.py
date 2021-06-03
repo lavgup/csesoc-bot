@@ -8,6 +8,14 @@ yaml = YAML()
 
 
 class Roles(commands.Cog):
+    """Handles role assignment and removal and provides useful admin commands
+
+    All configuration information is stored in roles.yml
+    - Role and role log channel IDs
+    - Allowed roles whitelist
+    Can be modified manually or with commands
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -18,36 +26,6 @@ class Roles(commands.Cog):
         self.bot.role_channel_id = settings['role_channel_id']
         self.bot.role_log_channel_id = settings['role_log_channel_id']
         self.bot.allowed_roles = settings['allowed_roles']
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def setrole(self, ctx):
-        self.bot.role_channel_id = ctx.channel.id
-        await ctx.send(f"Set <#{self.bot.role_channel_id}> as role channel.")
-        print(f"Set {self.bot.role_channel_id} as default role channel")
-        
-        with open('./config/roles.yml') as file:
-            data = yaml.load(file)
-
-        data['role_channel_id'] = ctx.channel.id
-
-        with open('./config/roles.yml', 'w') as file:
-            yaml.dump(data, file)
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def setrolelog(self, ctx):
-        self.bot.role_log_channel_id = ctx.channel.id
-        await ctx.send(f"Set <#{self.bot.role_log_channel_id}> as default role log channel.")
-        print(f"Set {self.bot.role_log_channel_id} as default role log channel")
-
-        with open('./config/roles.yml') as file:
-            data = yaml.load(file)
-
-        data['role_log_channel_id'] = ctx.channel.id
-
-        with open('./config/roles.yml', 'w') as file:
-            yaml.dump(data, file)
 
     @commands.command()
     async def give(self, ctx, *role_names):
@@ -114,13 +92,33 @@ class Roles(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def countmembers(self, ctx, *, role_name):
-        role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+    async def setrole(self, ctx):
+        self.bot.role_channel_id = ctx.channel.id
+        await ctx.send(f"Set <#{self.bot.role_channel_id}> as role channel.")
+        print(f"Set {self.bot.role_channel_id} as default role channel")
+        
+        with open('./config/roles.yml') as file:
+            data = yaml.load(file)
 
-        try:
-            await ctx.send(f"`{role_name}` has {len(role.members)} members")
-        except:
-            await ctx.send(f"`{role_name}` was not found. Please make sure the spelling is correct")
+        data['role_channel_id'] = ctx.channel.id
+
+        with open('./config/roles.yml', 'w') as file:
+            yaml.dump(data, file)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def setrolelog(self, ctx):
+        self.bot.role_log_channel_id = ctx.channel.id
+        await ctx.send(f"Set <#{self.bot.role_log_channel_id}> as default role log channel.")
+        print(f"Set {self.bot.role_log_channel_id} as default role log channel")
+
+        with open('./config/roles.yml') as file:
+            data = yaml.load(file)
+
+        data['role_log_channel_id'] = ctx.channel.id
+
+        with open('./config/roles.yml', 'w') as file:
+            yaml.dump(data, file)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -189,6 +187,16 @@ class Roles(commands.Cog):
             
         await asyncio.sleep(2.5)
         await ctx.message.delete()
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def countmembers(self, ctx, *, role_name):
+        role = discord.utils.find(lambda r: role_name.lower() == r.name.lower(), ctx.guild.roles)
+
+        try:
+            await ctx.send(f"`{role_name}` has {len(role.members)} members")
+        except:
+            await ctx.send(f"`{role_name}` was not found. Please make sure the spelling is correct")
 
 
 def setup(bot):
