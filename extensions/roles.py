@@ -1,19 +1,19 @@
 import discord
 from discord.ext import commands
+
+import asyncio
 from ruamel.yaml import YAML
 
-import yaml
-import asyncio
-
-# Load settings file and set variables
-with open('./config/roles.yml') as file:
-    settings = yaml.full_load(file)
-
 yaml = YAML()
+
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        # Load settings file and set variables
+        with open('./config/roles.yml') as file:
+            settings = yaml.load(file)
 
         self.bot.role_channel_id = settings['role_channel_id']
         self.bot.role_log_channel_id = settings['role_log_channel_id']
@@ -133,6 +133,7 @@ class Roles(commands.Cog):
                 success = False
             else:
                 self.bot.allowed_roles.append(role_name)
+
                 with open('./config/roles.yml') as file:
                     role_data = yaml.load(file)
 
@@ -166,6 +167,7 @@ class Roles(commands.Cog):
                 success = False
             else:
                 self.bot.allowed_roles.remove(role_name)
+
                 with open('./config/roles.yml') as file:
                     role_data = yaml.load(file)
 
