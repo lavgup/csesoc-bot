@@ -173,7 +173,7 @@ class Roles(commands.Cog):
         title = "Allowed Roles"
         pages = ['\n'.join(self.allowedroles[i:i+10]) for i in range(0,len(self.allowedroles),10)]
 
-        await self.scroll_handler.new(ctx, title, pages)
+        await self.scroll_handler.new(ctx, pages, title)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
