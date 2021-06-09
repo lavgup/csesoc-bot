@@ -45,20 +45,21 @@ async def on_ready():
         print(f"- {guild.name} (ID: {guild.id})")
     print("---------------------------------------------")
 
+
 @bot.command()
-async def changeprefix(ctx, newprefix):
-    bot.command_prefix = newprefix
-    
+@commands.has_permissions(administrator=True)
+async def prefix(ctx, *, new_prefix):
+    bot.command_prefix = new_prefix
+
     with open('./config/settings.yml') as file:
         data = yaml.load(file)
 
-    data['prefix'] = newprefix
+    data['prefix'] = new_prefix
 
     with open('./config/settings.yml', 'w') as file:
         yaml.dump(data, file)
 
-    await ctx.send(f"Set '{newprefix}' as the new command prefix")
-    print(f"Set {newprefix} as the new command prefix")
-    
+    await ctx.send(f"Set `{new_prefix}` as the new command prefix.")
+
 
 bot.run(BOT_TOKEN)
