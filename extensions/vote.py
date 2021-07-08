@@ -109,8 +109,8 @@ class vote(commands.Cog):
                 #Finding the vote that needs to be deleted
                 for i in self.data_vote:
                     if i['message_id'] == message_id and i['user_id'] == ctx.message.author.id :
-                        
-                        await ctx.send(f"Deleting vote - {msg.content}")
+                        msg_content = self.get_vote_string(msg)
+                        await ctx.send(f"Deleting vote - {msg_content}")
                         await msg.delete()
                         self.data_vote.remove(i)
                         self.save_data()
@@ -148,8 +148,8 @@ class vote(commands.Cog):
                 #Finding the vote that needs to be deleted
                 for i in self.data_vote:
                     if i['message_id'] == message_id and i['user_id'] == ctx.message.author.id :
-                        
-                        await ctx.send(f"Deleting vote - {msg.content}")
+                        msg_content = self.get_vote_string(msg)
+                        await ctx.send(f"Deleting vote - {msg_content}")
                         await msg.delete()
                         self.data_vote.remove(i)
                         self.save_data()
@@ -160,6 +160,7 @@ class vote(commands.Cog):
 
                 await ctx.send("Enter a valid message id")
 
+    '''
     @commands.command(brief = 'This command is like voteresult but it also returns the name of the users who reacted.', description = 'If this command is called with any parameter, \
         it will show the results of all the votes done by the user. Alternatively, you can pass a message id to see a specific result')
     async def voteresultfull(self, ctx, message_id = None):
@@ -180,11 +181,12 @@ class vote(commands.Cog):
                     msg = await ctx.fetch_message(i['message_id'])
                     await self.utility_voteresultfull(ctx,msg)
                     return
+    '''
     
     async def utility_voteresultfull(self,ctx,msg):
 
         #Getting the message content and reactions
-        message_text = msg.content
+        message_text = self.get_vote_string(msg)
         message_reactions = msg.reactions
 
 
@@ -215,7 +217,7 @@ class vote(commands.Cog):
     async def utility_voteresult(self,ctx,msg):
         
         #Getting the message content and reactions
-        message_text = msg.content
+        message_text = self.get_vote_string(msg)
         message_reactions = msg.reactions
 
         # Keeping the count of reactions
@@ -294,6 +296,9 @@ class vote(commands.Cog):
         
         else:
             return settings['root_directory']
+    
+    def get_vote_string(self, msg):
+        return msg.embeds[0].title
 
             
         
