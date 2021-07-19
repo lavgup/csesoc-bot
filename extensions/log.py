@@ -8,11 +8,8 @@ from ruamel.yaml import YAML
 
 yaml = YAML()
 
-##############################################################
-#               LOGGING (General + Error Handling)           #
-##############################################################
-
 class Log(commands.Cog):
+    """Handles general logging and error handling."""
 
     def __init__(self, bot):
         self.bot = bot

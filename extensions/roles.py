@@ -14,13 +14,7 @@ yaml = YAML()
 
 
 class Roles(commands.Cog):
-    """Handles role assignment and removal and provides useful admin commands
-
-    All configuration information is stored in roles.yml
-    - Role and role log channel IDs
-    - Allowed roles whitelist
-    Can be modified manually or with commands
-    """
+    """Handles role assignment and removal and provides commands for managing roles."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -50,7 +44,7 @@ class Roles(commands.Cog):
         except:
             pass
 
-    @commands.command()
+    @commands.command(brief="Gives a role to the user")
     async def give(self, ctx, *role_names):
         if ctx.message.channel.id != self.role_channel_id:
             return
@@ -87,7 +81,7 @@ class Roles(commands.Cog):
         await asyncio.sleep(2.5)
         await ctx.message.delete()
 
-    @commands.command()
+    @commands.command(brief="Removes a role from the user")
     async def remove(self, ctx, *role_names):
         if ctx.message.channel.id != self.role_channel_id:
             return
@@ -124,7 +118,7 @@ class Roles(commands.Cog):
         await asyncio.sleep(2.5)
         await ctx.message.delete()
 
-    @commands.command()
+    @commands.command(brief="Sets the channel as the role channel")
     @commands.has_permissions(administrator=True)
     async def setrole(self, ctx):
         self.role_channel_id = ctx.channel.id
@@ -138,7 +132,7 @@ class Roles(commands.Cog):
         with open(self.settings_file, 'w') as file:
             yaml.dump(data, file)
 
-    @commands.command()
+    @commands.command(brief="Sets the channel as the role log channel")
     @commands.has_permissions(administrator=True)
     async def setrolelog(self, ctx):
         self.role_log_channel_id = ctx.channel.id
@@ -152,7 +146,7 @@ class Roles(commands.Cog):
         with open(self.settings_file, 'w') as file:
             yaml.dump(data, file)
 
-    @commands.command()
+    @commands.command(brief="Adds a role to the whitelist")
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *role_names):
         if len(role_names) == 0:
@@ -175,7 +169,7 @@ class Roles(commands.Cog):
 
                 await ctx.send(f"✅ Added `{role_name}` to the whitelist.")
 
-    @commands.command()
+    @commands.command(brief="Removes a role from the whitelist")
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *role_names):
         if len(role_names) == 0:
@@ -198,7 +192,7 @@ class Roles(commands.Cog):
 
                 await ctx.send(f"✅ Removed `{role_name}` from the whitelist.")
 
-    @commands.command()
+    @commands.command(brief="Displays a list of allowed roles")
     @commands.has_permissions(administrator=True)
     async def allowedroles(self, ctx):
         if not self.allowedroles:
@@ -214,12 +208,12 @@ class Roles(commands.Cog):
     async def on_reaction_add(self, reaction, user):
         await self.scroll_handler.handle_reaction(reaction, user)
 
-    @commands.command()
+    @commands.command(brief="Displays a list of all roles on the server")
     @commands.has_permissions(administrator=True)
     async def listallroles(self, ctx):
         await ctx.send("```" + ('\n'.join(role.name for role in ctx.guild.roles)) + "```")
 
-    @commands.command()
+    @commands.command(brief="Displays the number of members with a certain role")
     @commands.has_permissions(administrator=True)
     async def countmembers(self, ctx, *, role_name = None):
         if role_name is None:
@@ -233,7 +227,7 @@ class Roles(commands.Cog):
         else:
             await ctx.send(f"`{role_name}` has {len(role.members)} members.")
 
-    @commands.command()
+    @commands.command(brief="Kicks all members with the unverified role")
     @commands.has_permissions(administrator=True)
     async def removeunverified(self, ctx):
         # This is Shrey's code don't @ me
@@ -246,7 +240,7 @@ class Roles(commands.Cog):
         
         await ctx.send(f"Removed {i} unverified members")
     
-    @commands.command()
+    @commands.command(brief="Assigns roles in bulk from an attached file")
     @commands.has_permissions(administrator=True)
     async def bulkgive(self, ctx, *role_names):
         if len(role_names) == 0 or len(ctx.message.attachments) == 0:

@@ -47,7 +47,7 @@ async def on_ready():
     print("---------------------------------------------")
 
 
-@bot.command()
+@bot.command(brief="Changes the prefix")
 @commands.has_permissions(administrator=True)
 async def prefix(ctx, *, new_prefix):
     bot.command_prefix = new_prefix
@@ -63,7 +63,7 @@ async def prefix(ctx, *, new_prefix):
     await ctx.send(f"Set `{new_prefix}` as the new command prefix.")
 
 
-@bot.command()
+@bot.command(brief="Loads an extension")
 @commands.has_permissions(administrator=True)
 async def load(ctx, extension):
     try:
@@ -82,7 +82,7 @@ async def load(ctx, extension):
         await ctx.send(f"Failed to load `{extension}`.")
 
 
-@bot.command()
+@bot.command(brief="Unloads an extension")
 @commands.has_permissions(administrator=True)
 async def unload(ctx, extension):
     try:
@@ -101,7 +101,7 @@ async def unload(ctx, extension):
         await ctx.send(f"Failed to unload `{extension}`.")
 
 
-@bot.command()
+@bot.command(brief="Reloads an extension")
 @commands.has_permissions(administrator=True)
 async def reload(ctx, extension):
     bot.reload_extension(f"extensions.{extension}")
@@ -109,7 +109,7 @@ async def reload(ctx, extension):
     await ctx.send(f"Reloaded `{extension}`.")
 
 
-@bot.command()
+@bot.command(brief="Reloads all extensions")
 @commands.has_permissions(administrator=True)
 async def reloadall(ctx):
     for extension in list(bot.extensions):

@@ -6,16 +6,9 @@ from ruamel.yaml import YAML
 
 yaml = YAML()
 
-class vote(commands.Cog):
-    """Handles all the voting related commands in any channel that the Bot has access to.
-    
-    Notes
-    -----
-    There are three major commands - 
-        1. vote - This command starts a vote on a specific text given by the user
-        2. voteresult/voteresultfull - This command gives the result of the last poll done on that channel
-        3. voteremove
-    """
+class Vote(commands.Cog):
+    """Handles the creation of votes, voting and the displaying of results."""
+
     def __init__(self,bot):
         self.bot = bot
         self.path = self.load_directory()
@@ -27,13 +20,13 @@ class vote(commands.Cog):
         except:
             self.data_vote = []
 
-    @commands.command(brief = 'This command is used to start a vote', description = 'Call this command with a vote string. Ex: [vote_command] Does pineapple belong on a pizza? ')
+    @commands.command(brief = 'Starts a vote', description = 'Call this command with a vote string. Ex: [vote_command] Does pineapple belong on a pizza? ')
     async def vote(self,ctx, *message_data):
 
         # Checking the length of the vote string
         if len(message_data) == 0:
         
-            await ctx.send("Command Syntax - [vote] Does pineapple belong on a pizza?")
+            await ctx.send(f"Usage: `{self.bot.command_prefix}vote [message]`")
             return
         
         else:
@@ -61,7 +54,7 @@ class vote(commands.Cog):
             await message_sent.add_reaction('👍')
             await message_sent.add_reaction('👎')
 
-    @commands.command(brief = 'This command is used to see the result of a vote done by the user', description = 'If this command is called with any parameter, \
+    @commands.command(brief = 'Displays the results of a vote', description = 'If this command is called with any parameter, \
         it will show the results of all the votes done by the user. Alternatively, you can pass a message id to see a specific result')
     async def voteresult(self, ctx, message_id = None):
         
@@ -96,7 +89,7 @@ class vote(commands.Cog):
             await ctx.send("There has been no polls in this channel")
 
     
-    @commands.command(brief = 'This command is used to remove a vote that was started by the user.', description = 'Calling this command without any parameter, it will return the message ids of all the votes done by the user. Then the user can delete a specific vote.')
+    @commands.command(brief = 'Removes a vote', description = 'Calling this command without any parameter, it will return the message ids of all the votes done by the user. Then the user can delete a specific vote.')
     async def removevote(self,ctx, message_id = None):
         
         # If the command was invoked using a reply to a vote, delete that vote
@@ -160,7 +153,7 @@ class vote(commands.Cog):
 
                 await ctx.send("Enter a valid message id")
 
-    @commands.command(brief = 'This command is like voteresult but it also returns the name of the users who reacted.', description = 'If this command is called with any parameter, \
+    @commands.command(brief = 'Displays the results of a vote, including a list of users', description = 'If this command is called with any parameter, \
         it will show the results of all the votes done by the user. Alternatively, you can pass a message id to see a specific result')
     async def voteresultfull(self, ctx, message_id = None):
         
@@ -300,4 +293,4 @@ class vote(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(vote(bot))
+    bot.add_cog(Vote(bot))

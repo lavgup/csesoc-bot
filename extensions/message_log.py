@@ -7,10 +7,8 @@ from ruamel.yaml import YAML
 
 yaml = YAML()
 
-###############################################################
-#                      MESSAGE LOGGING                        #
-###############################################################
 class Message_Log(commands.Cog):
+    """Handles message logging."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -19,20 +17,20 @@ class Message_Log(commands.Cog):
         self.message_edit = f'{self.path}message.log'
         self.message_delete = f'{self.path}message.log'
 
-    '''
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        logging.basicConfig(filename=self.message_log, \
-            filemode = 'a', \
-            format='%(asctime)s - %(message)s', datefmt='%Y-%m-%dT%H:%M:%S%z', \
-            level=logging.INFO, \
-            force=True)
-        server = message.guild.name
-        user_id = message.author.id
-        message = message.content
-        
-        logging.info(f'{server} - {user_id} - {message}')
-    '''
+    # Message logging currently disabled
+    #
+    # @commands.Cog.listener()
+    # async def on_message(self, message):
+    #     logging.basicConfig(filename=self.message_log, \
+    #         filemode = 'a', \
+    #         format='%(asctime)s - %(message)s', datefmt='%Y-%m-%dT%H:%M:%S%z', \
+    #         level=logging.INFO, \
+    #         force=True)
+    #     server = message.guild.name
+    #     user_id = message.author.id
+    #     message = message.content
+    #
+    #     logging.info(f'{server} - {user_id} - {message}')
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
