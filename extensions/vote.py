@@ -21,17 +21,15 @@ class Vote(commands.Cog):
             self.data_vote = []
 
     @commands.command(brief = 'Starts a vote', description = 'Call this command with a vote string. Ex: [vote_command] Does pineapple belong on a pizza? ')
-    async def vote(self,ctx, *message_data):
-
-        # Checking the length of the vote string
-        if len(message_data) == 0:
-        
+    async def vote(self,ctx, *, message_data = None):
+        if message_data is None:
+            # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}vote [message]`")
             return
         
         else:
             # Creating the vote string
-            vote_string = ' '.join(message_data)
+            vote_string = message_data
             vote_author = ctx.message.author
             vote_author_name = vote_author.name
             vote_author_id = vote_author.id

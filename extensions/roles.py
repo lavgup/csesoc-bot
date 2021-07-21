@@ -35,6 +35,7 @@ class Roles(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.channel.id != self.role_channel_id:
+            # Not in role channel
             return
 
         # This is extremely scuffed but it sorta works
@@ -47,6 +48,7 @@ class Roles(commands.Cog):
     @commands.command(brief="Gives a role to the user")
     async def give(self, ctx, *role_names):
         if ctx.message.channel.id != self.role_channel_id:
+            # Not in role channel
             return
 
         user = ctx.message.author
@@ -84,6 +86,7 @@ class Roles(commands.Cog):
     @commands.command(brief="Removes a role from the user")
     async def remove(self, ctx, *role_names):
         if ctx.message.channel.id != self.role_channel_id:
+            # Not in role channel
             return
 
         user = ctx.message.author
@@ -150,6 +153,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def whitelist(self, ctx, *role_names):
         if len(role_names) == 0:
+            # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}whitelist [role1] [role2] ...`")
             return
 
@@ -173,6 +177,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def blacklist(self, ctx, *role_names):
         if len(role_names) == 0:
+            # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}blacklist [role1] [role2] ...`")
             return
 
@@ -196,7 +201,8 @@ class Roles(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def allowedroles(self, ctx):
         if not self.allowedroles:
-            await ctx.send(f"No roles are currently allowed")
+            # No allowed roles
+            await ctx.send(f"No roles are currently allowed.")
             return
 
         title = "Allowed Roles"
@@ -217,6 +223,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def countmembers(self, ctx, *, role_name = None):
         if role_name is None:
+            # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}countmembers [role]`")
             return
 
@@ -244,6 +251,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def bulkgive(self, ctx, *role_names):
         if len(role_names) == 0 or len(ctx.message.attachments) == 0:
+            # No args or attachments
             await ctx.send(f"Usage: `{self.bot.command_prefix}bulkgive [role1] [role2] ... `, attaching a file of discordname#number or IDs")
             return
         

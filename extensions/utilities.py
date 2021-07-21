@@ -9,9 +9,9 @@ class Utilities(commands.Cog):
 
     @commands.command(brief = "Sends a message to a specified channel")
     @commands.has_permissions(administrator=True)
-    async def sendmsg(self,ctx, channel, *, message_data = None):
-        
-        if message_data is None:
+    async def sendmsg(self,ctx, channel = None, *, message_data = None):
+        if channel is None or message_data is None:
+            # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}sendmsg [#channel] [message]`")
             
             return
