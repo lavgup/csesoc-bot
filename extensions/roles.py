@@ -19,15 +19,15 @@ class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.settings_file = './data/config/roles.yml'
+        self.settings_file = "./data/config/roles.yml"
 
         # Load settings file and set variables
         with open(self.settings_file) as file:
             settings = yaml.load(file)
 
-        self.role_channel_id = settings['role_channel_id']
-        self.role_log_channel_id = settings['role_log_channel_id']
-        self.allowedroles = settings['allowed_roles']
+        self.role_channel_id = settings["role_channel_id"]
+        self.role_log_channel_id = settings["role_log_channel_id"]
+        self.allowedroles = settings["allowed_roles"]
 
         scroll_ttl = 60  # The time in seconds that a scroll will work
         self.scroll_handler = DiscordScrollHandler(scroll_ttl)
@@ -56,21 +56,38 @@ class Roles(commands.Cog):
         success = True
 
         for role_name in role_names[:3]:
-            role = discord.utils.find(lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles)
+            role = discord.utils.find(
+                lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles
+            )
 
-            role_name = role_name.replace('`', '')
+            role_name = role_name.replace("`", "")
 
             if role is None:
-                await ctx.send(f"❌ Failed to give `{role_name}` to `{user}`. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`.", delete_after=2)
-                await log_channel.send(f"❌ Failed to give `{role_name}` to `{user}` (role missing or invalid).")
+                await ctx.send(
+                    f"❌ Failed to give `{role_name}` to `{user}`. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to give `{role_name}` to `{user}` (role missing or invalid)."
+                )
                 success = False
             elif role in user.roles:
-                await ctx.send(f"❌ Failed to give `{role_name}` to `{user}`. You already have this role.", delete_after=2)
-                await log_channel.send(f"❌ Failed to give `{role_name}` to `{user}` (user already has role).")
+                await ctx.send(
+                    f"❌ Failed to give `{role_name}` to `{user}`. You already have this role.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to give `{role_name}` to `{user}` (user already has role)."
+                )
                 success = False
             elif role_name.lower() not in (role.lower() for role in self.allowedroles):
-                await ctx.send(f"❌ Failed to give `{role_name}` to `{user}`. You do not have permission to give yourself this role.", delete_after=2)
-                await log_channel.send(f"❌ Failed to give `{role_name}` to `{user}` (role not on whitelist).")
+                await ctx.send(
+                    f"❌ Failed to give `{role_name}` to `{user}`. You do not have permission to give yourself this role.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to give `{role_name}` to `{user}` (role not on whitelist)."
+                )
                 success = False
             else:
                 await user.add_roles(role)
@@ -94,25 +111,44 @@ class Roles(commands.Cog):
         success = True
 
         for role_name in role_names[:3]:
-            role = discord.utils.find(lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles)
+            role = discord.utils.find(
+                lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles
+            )
 
-            role_name = role_name.replace('`', '')
+            role_name = role_name.replace("`", "")
 
             if role is None:
-                await ctx.send(f"❌ Failed to remove `{role_name}` from `{user}`. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`.", delete_after=2)
-                await log_channel.send(f"❌ Failed to remove `{role_name}` from `{user}` (role missing or invalid).")
+                await ctx.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}`. Please make sure your course code matches exactly e.g. `COMP1511` not `COMP 1511`.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}` (role missing or invalid)."
+                )
                 success = False
             elif role not in user.roles:
-                await ctx.send(f"❌ Failed to remove `{role_name}` from `{user}`. You do not have this role.", delete_after=2)
-                await log_channel.send(f"❌ Failed to remove `{role_name}` from `{user}` (user does not have role).")
+                await ctx.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}`. You do not have this role.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}` (user does not have role)."
+                )
                 success = False
             elif role_name.lower() not in (role.lower() for role in self.allowedroles):
-                await ctx.send(f"❌ Failed to remove `{role_name}` from `{user}`. You do not have permission to remove this role.", delete_after=2)
-                await log_channel.send(f"❌ Failed to remove `{role_name}` from `{user}` (role not on whitelist).")
+                await ctx.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}`. You do not have permission to remove this role.",
+                    delete_after=2,
+                )
+                await log_channel.send(
+                    f"❌ Failed to remove `{role_name}` from `{user}` (role not on whitelist)."
+                )
                 success = False
             else:
                 await user.remove_roles(role)
-                await ctx.send(f"✅ Removed `{role_name}` from `{user}`.", delete_after=2)
+                await ctx.send(
+                    f"✅ Removed `{role_name}` from `{user}`.", delete_after=2
+                )
                 await log_channel.send(f"✅ Removed `{role_name}` from `{user}`.")
 
         if success:
@@ -126,27 +162,29 @@ class Roles(commands.Cog):
     async def setrole(self, ctx):
         self.role_channel_id = ctx.channel.id
         await ctx.send(f"Set <#{self.role_channel_id}> as role channel.")
-        
+
         with open(self.settings_file) as file:
             data = yaml.load(file)
 
-        data['role_channel_id'] = ctx.channel.id
+        data["role_channel_id"] = ctx.channel.id
 
-        with open(self.settings_file, 'w') as file:
+        with open(self.settings_file, "w") as file:
             yaml.dump(data, file)
 
     @commands.command(brief="Sets the channel as the role log channel")
     @commands.has_permissions(administrator=True)
     async def setrolelog(self, ctx):
         self.role_log_channel_id = ctx.channel.id
-        await ctx.send(f"Set <#{self.role_log_channel_id}> as default role log channel.")
+        await ctx.send(
+            f"Set <#{self.role_log_channel_id}> as default role log channel."
+        )
 
         with open(self.settings_file) as file:
             data = yaml.load(file)
 
-        data['role_log_channel_id'] = ctx.channel.id
+        data["role_log_channel_id"] = ctx.channel.id
 
-        with open(self.settings_file, 'w') as file:
+        with open(self.settings_file, "w") as file:
             yaml.dump(data, file)
 
     @commands.command(brief="Adds a role to the whitelist")
@@ -154,7 +192,9 @@ class Roles(commands.Cog):
     async def whitelist(self, ctx, *role_names):
         if len(role_names) == 0:
             # No args
-            await ctx.send(f"Usage: `{self.bot.command_prefix}whitelist [role1] [role2] ...`")
+            await ctx.send(
+                f"Usage: `{self.bot.command_prefix}whitelist [role1] [role2] ...`"
+            )
             return
 
         for role_name in role_names:
@@ -166,9 +206,9 @@ class Roles(commands.Cog):
                 with open(self.settings_file) as file:
                     role_data = yaml.load(file)
 
-                role_data['allowed_roles'].append(role_name)
+                role_data["allowed_roles"].append(role_name)
 
-                with open(self.settings_file, 'w') as file:
+                with open(self.settings_file, "w") as file:
                     yaml.dump(role_data, file)
 
                 await ctx.send(f"✅ Added `{role_name}` to the whitelist.")
@@ -178,7 +218,9 @@ class Roles(commands.Cog):
     async def blacklist(self, ctx, *role_names):
         if len(role_names) == 0:
             # No args
-            await ctx.send(f"Usage: `{self.bot.command_prefix}blacklist [role1] [role2] ...`")
+            await ctx.send(
+                f"Usage: `{self.bot.command_prefix}blacklist [role1] [role2] ...`"
+            )
             return
 
         for role_name in role_names:
@@ -190,9 +232,9 @@ class Roles(commands.Cog):
                 with open(self.settings_file) as file:
                     role_data = yaml.load(file)
 
-                role_data['allowed_roles'].remove(role_name)
+                role_data["allowed_roles"].remove(role_name)
 
-                with open(self.settings_file, 'w') as file:
+                with open(self.settings_file, "w") as file:
                     yaml.dump(role_data, file)
 
                 await ctx.send(f"✅ Removed `{role_name}` from the whitelist.")
@@ -206,7 +248,10 @@ class Roles(commands.Cog):
             return
 
         title = "Allowed Roles"
-        pages = ['\n'.join(self.allowedroles[i:i+10]) for i in range(0,len(self.allowedroles),10)]
+        pages = [
+            "\n".join(self.allowedroles[i : i + 10])
+            for i in range(0, len(self.allowedroles), 10)
+        ]
 
         await self.scroll_handler.new(ctx, pages, title)
 
@@ -217,20 +262,26 @@ class Roles(commands.Cog):
     @commands.command(brief="Displays a list of all roles on the server")
     @commands.has_permissions(administrator=True)
     async def listallroles(self, ctx):
-        await ctx.send("```" + ('\n'.join(role.name for role in ctx.guild.roles)) + "```")
+        await ctx.send(
+            "```" + ("\n".join(role.name for role in ctx.guild.roles)) + "```"
+        )
 
     @commands.command(brief="Displays the number of members with a certain role")
     @commands.has_permissions(administrator=True)
-    async def countmembers(self, ctx, *, role_name = None):
+    async def countmembers(self, ctx, *, role_name=None):
         if role_name is None:
             # No args
             await ctx.send(f"Usage: `{self.bot.command_prefix}countmembers [role]`")
             return
 
-        role = discord.utils.find(lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles)
+        role = discord.utils.find(
+            lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles
+        )
 
         if role is None:
-            await ctx.send(f"`{role_name}` was not found. Please make sure the spelling is correct.")
+            await ctx.send(
+                f"`{role_name}` was not found. Please make sure the spelling is correct."
+            )
         else:
             await ctx.send(f"`{role_name}` has {len(role.members)} members.")
 
@@ -240,23 +291,29 @@ class Roles(commands.Cog):
         # This is Shrey's code don't @ me
         i = 0
         for member in ctx.guild.members:
-            if discord.utils.get(member.roles, name = 'unverified' ):
+            if discord.utils.get(member.roles, name="unverified"):
                 i += 1
-                await member.send(content = "You have been removed from the CSESoc Server - as you have not verified via the instructions in #welcome")
-                await member.kick(reason = "You have been removed from the CSESoc Server - as you have not verified via the instructions in #welcome")
-        
+                await member.send(
+                    content="You have been removed from the CSESoc Server - as you have not verified via the instructions in #welcome"
+                )
+                await member.kick(
+                    reason="You have been removed from the CSESoc Server - as you have not verified via the instructions in #welcome"
+                )
+
         await ctx.send(f"Removed {i} unverified members")
-    
+
     @commands.command(brief="Assigns roles in bulk from an attached file")
     @commands.has_permissions(administrator=True)
     async def bulkgive(self, ctx, *role_names):
         if len(role_names) == 0 or len(ctx.message.attachments) == 0:
             # No args or attachments
-            await ctx.send(f"Usage: `{self.bot.command_prefix}bulkgive [role1] [role2] ... `, attaching a file of discordname#number or IDs")
+            await ctx.send(
+                f"Usage: `{self.bot.command_prefix}bulkgive [role1] [role2] ... `, attaching a file of discordname#number or IDs"
+            )
             return
-        
-        await ctx.channel.trigger_typing() # Operation may take a bit
-        
+
+        await ctx.channel.trigger_typing()  # Operation may take a bit
+
         members = set()
         failed_member_lookups = []
         for attachment in ctx.message.attachments:
@@ -264,33 +321,42 @@ class Roles(commands.Cog):
             try:
                 uploaded = await attachment.read()
             except HTTPException or Forbidden or NotFound:
-                await ctx.send(f"Could not read attachment {attachment.filename}, cancelling operation.")
+                await ctx.send(
+                    f"Could not read attachment {attachment.filename}, cancelling operation."
+                )
                 continue
 
-            decoded = uploaded.decode(sys.getdefaultencoding()) # Could be just utf-8 if this causes issues
+            decoded = uploaded.decode(
+                sys.getdefaultencoding()
+            )  # Could be just utf-8 if this causes issues
             encoded_users = decoded.split("\n")
             for encoded_user in encoded_users:
-                encoded_user = encoded_user.strip() # Remove whitespace
-                if not encoded_user: # String is empty
+                encoded_user = encoded_user.strip()  # Remove whitespace
+                if not encoded_user:  # String is empty
                     continue
                 try:
                     member = await commands.MemberConverter().convert(ctx, encoded_user)
                     members.add(member)
                 except MemberNotFound:
                     failed_member_lookups.append(encoded_user)
-        
+
         failed_role_lookups = []
         roles = set()
         for role_name in role_names:
-            role = discord.utils.find(lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles)
+            role = discord.utils.find(
+                lambda r: r.name.lower() == role_name.lower(), ctx.guild.roles
+            )
             if role is None:
                 failed_role_lookups.append(role_name)
                 continue
             roles.add(role)
-        
+
         for member in members:
-            await member.add_roles(*roles, reason=f"Bulk give operation by {ctx.message.author.id} ({ctx.message.author.name}))")
-        
+            await member.add_roles(
+                *roles,
+                reason=f"Bulk give operation by {ctx.message.author.id} ({ctx.message.author.name}))",
+            )
+
         reply = "```Bulk give complete\n"
         reply += f"Added {len(roles)} roles to {len(members)} members.\n\n"
         reply += f"Failed member lookups: {len(failed_member_lookups)}\n"
@@ -302,6 +368,7 @@ class Roles(commands.Cog):
         reply += "```"
 
         await ctx.message.reply(reply)
+
 
 def setup(bot):
     bot.add_cog(Roles(bot))

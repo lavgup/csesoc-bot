@@ -7,15 +7,16 @@ from ruamel.yaml import YAML
 
 yaml = YAML()
 
+
 class Message_Log(commands.Cog):
     """Handles message logging."""
 
     def __init__(self, bot):
         self.bot = bot
         self.path = self.load_directory()
-        self.message_log = f'{self.path}message.log'
-        self.message_edit = f'{self.path}message.log'
-        self.message_delete = f'{self.path}message.log'
+        self.message_log = f"{self.path}message.log"
+        self.message_edit = f"{self.path}message.log"
+        self.message_delete = f"{self.path}message.log"
 
     # Message logging currently disabled
     #
@@ -34,42 +35,48 @@ class Message_Log(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
-        logging.basicConfig(filename=self.message_edit, \
-            filemode = 'a', \
-            format='%(asctime)s - %(message)s', datefmt='%Y-%m-%dT%H:%M:%S%z', \
-            level=logging.INFO, \
-            force=True)
+        logging.basicConfig(
+            filename=self.message_edit,
+            filemode="a",
+            format="%(asctime)s - %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S%z",
+            level=logging.INFO,
+            force=True,
+        )
         server = message.guild.name
         user_id = message.author.id
         message_before = before.content
         message_after = message.content
 
-        logging.info(f'{user_id} edited message in {server}\n\tMessage before: {message_before}\n\tMessage after: {message_after}')
-
+        logging.info(
+            f"{user_id} edited message in {server}\n\tMessage before: {message_before}\n\tMessage after: {message_after}"
+        )
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        logging.basicConfig(filename=self.message_delete, \
-            filemode = 'a', \
-            format='%(asctime)s - %(message)s', datefmt='%Y-%m-%dT%H:%M:%S%z', \
-            level=logging.INFO, \
-            force=True)
+        logging.basicConfig(
+            filename=self.message_delete,
+            filemode="a",
+            format="%(asctime)s - %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S%z",
+            level=logging.INFO,
+            force=True,
+        )
         server = message.guild.name
         user_id = message.author.id
         message = message.content
-    
-        logging.info (f'{server} - {user_id} - {message} - deleted')
-    
+
+        logging.info(f"{server} - {user_id} - {message} - deleted")
+
     def load_directory(self):
-        with open('./data/config/settings.yml') as file:
+        with open("./data/config/settings.yml") as file:
             settings = yaml.load(file)
 
-        if settings['enable_local_data']:
-            return settings['local_directory']
-        
-        else:
-            return settings['root_directory']
+        if settings["enable_local_data"]:
+            return settings["local_directory"]
 
+        else:
+            return settings["root_directory"]
 
 
 def setup(bot):

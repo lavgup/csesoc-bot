@@ -24,7 +24,9 @@ class DiscordScrollHandler:
     def __init__(self, message_ttl):
         if not isinstance(message_ttl, int):
             wrong_type = message_ttl.__class__.__name__
-            raise TypeError(f"DiscordScrollHandler expected int for message_ttl, but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScrollHandler expected int for message_ttl, but received {wrong_type} instead."
+            )
 
         # _cached has the structure {message_id (`int`): {"scroll": DiscordScroll, "ttl_task": Task}}
         self._cached = {}
@@ -83,10 +85,14 @@ class DiscordScrollHandler:
         """
         if not isinstance(reaction, discord.Reaction):
             wrong_type = reaction.__class__.__name__
-            raise TypeError(f"DiscordScrollHandler expected discord.Reaction for reaction, but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScrollHandler expected discord.Reaction for reaction, but received {wrong_type} instead."
+            )
         elif not (isinstance(user, discord.Member) or isinstance(user, discord.Member)):
             wrong_type = user.__class__.__name__
-            raise TypeError(f"DiscordScrollHandler expected discord.User for user, but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScrollHandler expected discord.User for user, but received {wrong_type} instead."
+            )
 
         if user.id != reaction.message.author.id:
             # checks if the reaction isnt performed by the bot
@@ -130,12 +136,18 @@ class DiscordScrollHandler:
         """
         if not isinstance(seconds, int):
             wrong_type = seconds.__class__.__name__
-            raise TypeError(f"DiscordScrollHandler expected int for seconds, but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScrollHandler expected int for seconds, but received {wrong_type} instead."
+            )
         elif seconds < 30:
-            raise TypeError(f"DiscordScrollHandler expected seconds to be larger than or equal to 30.")
+            raise TypeError(
+                f"DiscordScrollHandler expected seconds to be larger than or equal to 30."
+            )
         elif not isinstance(scroller, DiscordScroll):
             wrong_type = seconds.__class__.__name__
-            raise TypeError(f"DiscordScrollHandler expected DiscordScroll for scroller, but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScrollHandler expected DiscordScroll for scroller, but received {wrong_type} instead."
+            )
 
         await asyncio.sleep(seconds)
 
@@ -216,11 +228,17 @@ class DiscordScroll:
         if not self._using_embeds:
             if not isinstance(value, str):
                 wrong_type = value.__class__.__name__
-                raise TypeError(f"DiscordScroll.title expected str but received {wrong_type} instead.")
+                raise TypeError(
+                    f"DiscordScroll.title expected str but received {wrong_type} instead."
+                )
             elif len(value) == 0:
-                raise TypeError(f"DiscordScroll.title expected str with length of at least one.")
+                raise TypeError(
+                    f"DiscordScroll.title expected str with length of at least one."
+                )
         else:
-            raise AttributeError(f"DiscordScroll.title cannot be set when using embeds.")
+            raise AttributeError(
+                f"DiscordScroll.title cannot be set when using embeds."
+            )
 
         self._title = value
 
@@ -234,9 +252,13 @@ class DiscordScroll:
         """Setter method for pages, expects `List[str]` or `List[discord.Embed]."""
         if not isinstance(value, list):
             wrong_type = value.__class__.__name__
-            raise TypeError(f"DiscordScroll.pages expected list but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScroll.pages expected list but received {wrong_type} instead."
+            )
         elif len(value) == 0:
-            raise TypeError(f"DiscordScroll.pages expected at least one element in list.")
+            raise TypeError(
+                f"DiscordScroll.pages expected at least one element in list."
+            )
 
         # fixing the title, and updating self._using_embeds
         if all(isinstance(element, str) for element in value):
@@ -249,7 +271,9 @@ class DiscordScroll:
             self._using_embeds = True
             self._title = None
         else:
-            raise TypeError(f"DiscordScroll.pages expected list of str OR list of discord.Embed.")
+            raise TypeError(
+                f"DiscordScroll.pages expected list of str OR list of discord.Embed."
+            )
 
         self._pages = value
 
@@ -263,7 +287,9 @@ class DiscordScroll:
         """Setter method for embed, expects `discord.Embed`."""
         if not isinstance(value, discord.Embed):
             wrong_type = value.__class__.__name__
-            raise TypeError(f"DiscordScroll.embed expected discord.Embed but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScroll.embed expected discord.Embed but received {wrong_type} instead."
+            )
 
         self._embed = value
 
@@ -307,7 +333,9 @@ class DiscordScroll:
         """
         if not isinstance(ctx, discord.ext.commands.context.Context):
             wrong_type = ctx.__class__.__name__
-            raise TypeError(f"DiscordScroll.send expected discord.ext.commands.context.Context but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScroll.send expected discord.ext.commands.context.Context but received {wrong_type} instead."
+            )
 
         message = await ctx.send(embed=self.embed)
 
@@ -338,7 +366,9 @@ class DiscordScroll:
         """
         if not isinstance(reaction, discord.Reaction):
             wrong_type = reaction.__class__.__name__
-            raise TypeError(f"DiscordScroll.scroll expected discord.Reaction but received {wrong_type} instead.")
+            raise TypeError(
+                f"DiscordScroll.scroll expected discord.Reaction but received {wrong_type} instead."
+            )
 
         if self._active:
             if str(reaction) == self._left:

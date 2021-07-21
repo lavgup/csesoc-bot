@@ -7,19 +7,19 @@ from dotenv import load_dotenv
 
 yaml = YAML()
 
-SETTINGS_FILE = './data/config/settings.yml'
+SETTINGS_FILE = "./data/config/settings.yml"
 # Load settings file and set variables
 with open(SETTINGS_FILE) as file:
     settings = yaml.load(file)
 
-BOT_PREFIX = settings['prefix']
+BOT_PREFIX = settings["prefix"]
 
 # Set token
-if settings['token_env_enabled']:
+if settings["token_env_enabled"]:
     load_dotenv()
-    BOT_TOKEN = os.getenv(settings['token_env_key'])
+    BOT_TOKEN = os.getenv(settings["token_env_key"])
 else:
-    BOT_TOKEN = settings['token']
+    BOT_TOKEN = settings["token"]
 
 # TODO: Move this to config file
 intents = discord.Intents.all()
@@ -29,7 +29,7 @@ bot = commands.Bot(command_prefix=BOT_PREFIX, intents=intents)
 
 # Load extensions
 if __name__ == "__main__":
-    for extension in settings['enabled_extensions']:
+    for extension in settings["enabled_extensions"]:
         bot.load_extension(f"extensions.{extension}")
 
 
@@ -55,9 +55,9 @@ async def prefix(ctx, *, new_prefix):
     with open(SETTINGS_FILE) as file:
         data = yaml.load(file)
 
-    data['prefix'] = new_prefix
+    data["prefix"] = new_prefix
 
-    with open(SETTINGS_FILE, 'w') as file:
+    with open(SETTINGS_FILE, "w") as file:
         yaml.dump(data, file)
 
     await ctx.send(f"Set `{new_prefix}` as the new command prefix.")
@@ -72,9 +72,9 @@ async def load(ctx, extension):
         with open(SETTINGS_FILE) as file:
             data = yaml.load(file)
 
-        data['enabled_extensions'].append(extension)
+        data["enabled_extensions"].append(extension)
 
-        with open(SETTINGS_FILE, 'w') as file:
+        with open(SETTINGS_FILE, "w") as file:
             yaml.dump(data, file)
 
         await ctx.send(f"Loaded `{extension}`.")
@@ -91,9 +91,9 @@ async def unload(ctx, extension):
         with open(SETTINGS_FILE) as file:
             data = yaml.load(file)
 
-        data['enabled_extensions'].remove(extension)
+        data["enabled_extensions"].remove(extension)
 
-        with open(SETTINGS_FILE, 'w') as file:
+        with open(SETTINGS_FILE, "w") as file:
             yaml.dump(data, file)
 
         await ctx.send(f"Unloaded `{extension}`.")
