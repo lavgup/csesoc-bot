@@ -65,7 +65,7 @@ class Vote(commands.Cog):
                 await self.utility_voteresult(ctx, msg)
                 
             except:
-                await ctx.send("Command Syntax - [voteresult] message_id(optional)")
+                await ctx.send(f"Usage: `{self.bot.command_prefix}voteresult [message_id (optional)]`")
         
         # If the command was sent by sending a reply to a poll, then gives the result of that vote.
         elif message_id is None and ctx.message.reference is not None:
@@ -84,7 +84,7 @@ class Vote(commands.Cog):
                     await self.utility_voteresult(ctx, msg)
                     return
 
-            await ctx.send("There has been no polls in this channel")
+            await ctx.send("There have been no polls in this channel.")
 
     
     @commands.command(brief = 'Removes a vote', description = 'Calling this command without any parameter, it will return the message ids of all the votes done by the user. Then the user can delete a specific vote.')
@@ -106,10 +106,10 @@ class Vote(commands.Cog):
                         self.data_vote.remove(i)
                         self.save_data()
                         return
-                await ctx.send("You can only delete your votes")
+                await ctx.send("You can only delete your own votes :)")
 
             except:
-                await ctx.send("This is not a vote")
+                await ctx.send("This is not a vote.")
         
         # Getting the message ids of all the votes done by the user calling this command
         elif message_id is None:
@@ -145,14 +145,13 @@ class Vote(commands.Cog):
                         self.data_vote.remove(i)
                         self.save_data()
                         return
-                await ctx.send("You can only delete your votes :)")
+                await ctx.send("You can only delete your own votes :)")
 
             except:
 
-                await ctx.send("Enter a valid message id")
+                await ctx.send("Enter a valid message id.")
 
-    @commands.command(brief = 'Displays the results of a vote, including a list of users', description = 'If this command is called with any parameter, \
-        it will show the results of all the votes done by the user. Alternatively, you can pass a message id to see a specific result')
+    @commands.command(brief = 'Displays the results of a vote, including a list of users')
     async def voteresultfull(self, ctx, message_id = None):
         
         # Retreiving the vote using the message_id from that channel
@@ -162,7 +161,7 @@ class Vote(commands.Cog):
                 msg = await ctx.fetch_message(message_id)
                 await self.utility_voteresultfull(ctx, msg)
             except:
-                await ctx.send("Enter a valid message id")
+                await ctx.send("Enter a valid message id.")
         
         # If the message id is not given, return the list of all the users who reacted on the last poll done on the channel.
         else:
