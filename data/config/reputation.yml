@@ -3,8 +3,10 @@
 ####################################################################
 
 # List of substrings that should trigger reputation giving
+# Should be in lower case
 thanks_list:
 - thanks
+- thankyou
 - thank you
 - thx
 - ty

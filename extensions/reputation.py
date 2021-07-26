@@ -22,7 +22,7 @@ class Reputation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if any(thanks in message.content for thanks in self.thanks_list):
+        if any(thanks in message.content.lower() for thanks in self.thanks_list):
             if message.reference:
                 thanked_message = await message.channel.fetch_message(
                     message.reference.message_id
