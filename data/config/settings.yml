@@ -15,6 +15,7 @@ enabled_extensions:
   - vote
   - utilities
   - handbook
+  - reputation
 
 ####################################################################
 #                        Token Settings                            #

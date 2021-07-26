@@ -1,0 +1,10 @@
+####################################################################
+#                      Reputation Settings                         #
+####################################################################
+
+# List of substrings that should trigger reputation giving
+thanks_list:
+- thanks
+- thank you
+- thx
+- ty
