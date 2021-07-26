@@ -38,7 +38,10 @@ class Reputation(commands.Cog):
             elif thanked_user.bot:
                 await message.channel.send("Can't give rep to bots :(")
             else:
-                await message.channel.send(f"Gave +1 Rep to {thanked_user.mention}")
+                await message.channel.send(
+                    f"Gave +1 Rep to {thanked_user.mention}",
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
 
 
 def setup(bot):
