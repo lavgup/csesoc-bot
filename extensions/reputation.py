@@ -7,7 +7,7 @@ yaml = YAML()
 
 
 class Reputation(commands.Cog):
-    """Handles giving and removing reputation points."""
+    """Handles giving, removing and displaying reputation."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -45,6 +45,7 @@ class Reputation(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command(brief="Gives reputation to a user")
     async def giverep(self, ctx, user: discord.User, amount=1):
+        # TODO: Save to database
         await ctx.send(
             f"Gave +{amount} Rep to {user.mention}",
             allowed_mentions=discord.AllowedMentions.none(),
@@ -53,10 +54,16 @@ class Reputation(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command(brief="Takes reputation from a user")
     async def takerep(self, ctx, user: discord.User, amount=1):
+        # TODO: Save to database
         await ctx.send(
             f"Took -{amount} Rep from {user.mention}",
             allowed_mentions=discord.AllowedMentions.none(),
         )
+
+    # TODO: Write function after saving to database
+    @commands.command(brief="Displays a leaderboard of users with the most reputation")
+    async def toprep(self, ctx):
+        pass
 
 
 def setup(bot):
