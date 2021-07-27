@@ -22,13 +22,13 @@ class Reputation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        ctx = await self.bot.get_context(message)
+
         message_lower_words = message.content.lower().split(" ")
 
         if any(thanks in message_lower_words for thanks in self.thanks_list):
             if message.reference:
-                thanked_message = await message.channel.fetch_message(
-                    message.reference.message_id
-                )
+                thanked_message = await ctx.fetch_message(message.reference.message_id)
                 thanked_user = thanked_message.author
             elif message.mentions:
                 thanked_user = message.mentions[0]
@@ -40,10 +40,23 @@ class Reputation(commands.Cog):
             elif thanked_user.bot:
                 await message.channel.send("Can't give rep to bots :(")
             else:
-                await message.channel.send(
-                    f"Gave +1 Rep to {thanked_user.mention}",
-                    allowed_mentions=discord.AllowedMentions.none(),
-                )
+                await ctx.invoke(self.bot.get_command("giverep"), user=thanked_user)
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(brief="Gives reputation to a user")
+    async def giverep(self, ctx, user: discord.User, amount=1):
+        await ctx.send(
+            f"Gave +{amount} Rep to {user.mention}",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(brief="Takes reputation from a user")
+    async def takerep(self, ctx, user: discord.User, amount=1):
+        await ctx.send(
+            f"Took -{amount} Rep from {user.mention}",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
 
 def setup(bot):
