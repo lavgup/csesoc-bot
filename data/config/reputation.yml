@@ -2,11 +2,13 @@
 #                      Reputation Settings                         #
 ####################################################################
 
-# List of substrings that should trigger reputation giving
+# List of words that should trigger reputation giving
 # Should be in lower case
 thanks_list:
+- thank
 - thanks
 - thankyou
-- thank you
 - thx
 - ty
+- tysm
+- tyvm
