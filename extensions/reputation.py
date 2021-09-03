@@ -30,17 +30,16 @@ class Reputation(commands.Cog):
             if message.reference:
                 thanked_message = await ctx.fetch_message(message.reference.message_id)
                 thanked_user = thanked_message.author
-            elif message.mentions:
-                thanked_user = message.mentions[0]
-            else:
-                return
 
-            if thanked_user is message.author:
-                await message.channel.send("Nice try rep farmer!")
-            elif thanked_user.bot:
-                await message.channel.send("Can't give rep to bots :(")
-            else:
-                await ctx.invoke(self.bot.get_command("giverep"), user=thanked_user)
+                if thanked_user is not ctx.message.author:
+                    await ctx.invoke(self.bot.get_command("giverep"), user=thanked_user)
+
+            elif message.mentions:
+                for thanked_user in message.mentions:
+                    if thanked_user is not ctx.message.author:
+                        await ctx.invoke(
+                            self.bot.get_command("giverep"), user=thanked_user
+                        )
 
     @commands.has_permissions(administrator=True)
     @commands.command(brief="Gives reputation to a user")
