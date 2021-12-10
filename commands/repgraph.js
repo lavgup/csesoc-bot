@@ -1,11 +1,12 @@
 //@ts-check
 
 const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discordjs/builders");
-const { CommandInteraction, MessageAttachment } = require("discord.js");
+const { CommandInteraction, MessageAttachment, User } = require("discord.js");
 const { Chart } = require("chart.js");
 const seedrandom = require("seedrandom");
 const fs = require("fs");
 const canvas = require("canvas");
+const { RepGraphStorage } = require("../lib/repgraph");
 require("moment");
 require("chartjs-adapter-moment");
 
@@ -23,7 +24,6 @@ const width = 800;
 const height = 600;
 const fontFamily = "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
 const fontSize = 16;
-// const backgroundColour = 'rgb(238, 251, 251)';
 const backgroundColour = 'rgba(238, 251, 251, 0)';
 const backgroundPlugin = {
     id: 'custom_canvas_background_color',
@@ -60,7 +60,7 @@ const graphConfig = {
                 }
             }, 
             y: {
-                beginAtZero: true,
+                // beginAtZero: true,  // DEBUG MIGHT TURN BACK ON
                 ticks: {
                     font: {size: fontSize},
                 }
@@ -70,6 +70,7 @@ const graphConfig = {
             point: {radius: 0}, 
             line: {tension: 0.2}
         },
+        aspectRatio: width / height,
         responsive: false,
         animation: false,
         devicePixelRatio: 2, // makes it so crisp, 1.5 might be better if it is too slow
@@ -83,12 +84,14 @@ const graphConfig = {
 
 /** @param {CommandInteraction} interaction */
 async function handle(interaction) {
+    const rgStorage = global.rgStorage
+
     // check whether a user was given
     const user = interaction.options.getUser("user", false);
     let attachment = null;
     if (user != null) {
         // user was given
-        attachment = await userBoard(user.id, interaction);
+        attachment = await userBoard(user, interaction, rgStorage);
         // console.log(attachment);
         if (attachment == null) {
             return interaction.reply("Please give a valid user!");
@@ -98,7 +101,7 @@ async function handle(interaction) {
         // user wasnt given
         // defer the reply
         await interaction.deferReply();
-        attachment = await overallBoard(interaction);
+        attachment = await overallBoard(interaction, rgStorage);
         if (attachment == null) {
             return interaction.editReply("Something went wrong!");
         }
@@ -110,35 +113,17 @@ async function handle(interaction) {
 
 /** 
  * Generates a board for a specific user
- * @param {String} id
+ * @param {User} user
  * @param {CommandInteraction} interaction
+ * @param {RepGraphStorage} rgStorage
  */
-async function userBoard(id, interaction) {
-    const user = await interaction.client.users.fetch(id);
-    const userColor = snowflakeToRandRGB(id);
-
-    // read the file
-    let file;
-    try {
-        file = fs.readFileSync(`./data/rep_history/users/${id}.json`, "utf8");
-    } catch {
-        return null;
-    }
-    
-    // user file was found, extract data
-    const rawData = JSON.parse(file);
-    const formattedData = [];
-    for (const date in rawData) {
-        formattedData.push({x: date, y: rawData[date]});
-    }
-    const data = {datasets: [{
-        label: user.username, showLine: true, backgroundColor: userColor, borderColor: userColor, data: formattedData
-    }]};
+async function userBoard(user, interaction, rgStorage) {
+    const datasets = await rgStorage.getUserGraphData(user);
 
     // create graph
     const graphCanvas = canvas.createCanvas(width, height);
     const graphContext = graphCanvas.getContext('2d'); 
-    const graph = new Chart(graphContext, {...graphConfig, data: data});
+    const graph = new Chart(graphContext, {...graphConfig, data: {datasets: datasets}});
 
     // create background background
     const BGCanvas = canvas.createCanvas(graphCanvas.width + 150, graphCanvas.height + 150);
@@ -156,85 +141,10 @@ async function userBoard(id, interaction) {
 /** 
  * Generates a board for the top 10 over the past 30 days
  * @param {CommandInteraction} interaction
+ * @param {RepGraphStorage} rgStorage
  */
-async function overallBoard(interaction) {
-    const currDate = new Date("2021-08-26");
-    const thirtyDaysAgo = new Date(currDate);
-    thirtyDaysAgo.setDate(currDate.getDate() - 30);
-    console.log(currDate, thirtyDaysAgo);
-
-    // read the file
-    let file;
-    try {
-        file = fs.readFileSync(`./data/rep_history/years/${currDate.getFullYear()}.json`, "utf8");
-    } catch {
-        return null;
-    }
-    
-    // year file was found, get the last 30 days of data
-    const unfilteredData = JSON.parse(file);
-    const rawData = [];
-    for (let entry = 1; entry <= unfilteredData.length; entry++) {
-        const currEntry = unfilteredData[unfilteredData.length - entry];
-        const currEntryDate = new Date(Object.keys(currEntry)[0]);
-        if (currEntryDate < thirtyDaysAgo) {
-            // if its too old
-            break;
-        }
-
-        // not too old, add it
-        rawData.push(currEntry)
-    }
-    const firstPlace = Object.keys(Object.values(rawData[0])[0][0])[0]; // i hate this
-    rawData.reverse();
-
-    // setup the dataset for each user
-    const usersData = {};
-    for (const dataEntry of rawData) {
-        // go through each top 10 entry
-        const date = Object.keys(dataEntry)[0];
-        const topTen = Object.values(dataEntry)[0];
-
-        for (const userEntry of topTen) {
-            // go through each user
-            const userID = Object.keys(userEntry)[0];
-            if (!(userID in usersData)) {
-                // setup user dataset
-                usersData[userID] = [];
-            }
-
-            // add the entry to the user
-            usersData[userID].push({x: date, y: Object.values(userEntry)[0]});
-        }
-    }
-    
-    // transform this transformed data into the charts required format
-    const datasets = [];
-    for (const userID of Object.keys(usersData)) {
-        let userObj = await interaction.client.users.fetch(userID);
-        let userColor = String(userObj.hexAccentColor);
-        if (userColor == "undefined") {
-            userObj = await userObj.fetch(true);
-            userColor = userObj.hexAccentColor;
-        } else if (userColor == "null") {
-            // const randomNum = seedrandom.xor4096(userID)(); // ok
-            // const randomNum = seedrandom.xor128(userID)(); // better
-            const randomNum = seedrandom.xorshift7(userID)(); // really good
-            let hex = Math.floor(randomNum * 16777215).toString(16);
-            hex = hex.padStart(6, "0")
-            userColor = "#" + hex;
-            // userColor = snowflakeToRandRGB(userID);
-        }
-        console.log(userObj.username, userID, userColor);
-
-        datasets.push({
-            label: userObj.username,
-            showLine: true, 
-            backgroundColor: userColor, 
-            borderColor: userColor, 
-            data: usersData[userID]
-        });
-    }
+async function overallBoard(interaction, rgStorage) {
+    const datasets = await rgStorage.getTopGraphData(interaction);
 
     // create graph
     const graphCanvas = canvas.createCanvas(width, height);
@@ -264,20 +174,6 @@ async function overallBoard(interaction) {
 
     const attachment = BGCanvas.toBuffer();
     return attachment;
-}
-
-function snowflakeToRandRGB(snowflake) {
-    let binStr = (BigInt(snowflake) / BigInt(0xFFF)).toString(2); // mayb use 0xFF
-
-    if (binStr.length < 24) {
-        binStr = (Math.random() * 0xFFFFFF).toString(2);
-    }
-
-    const r = parseInt(binStr.slice(-25, -17), 2);
-    const g = parseInt(binStr.slice(-17, -9), 2);
-    const b = parseInt(binStr.slice(-9, -1), 2);
-
-    return `rgb(${String(r)}, ${String(g)}, ${String(b)})`;
 }
 
 
