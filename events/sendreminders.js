@@ -35,7 +35,7 @@ module.exports = {
                                             user_list.forEach(
                                                 user => {
                                                     if (!reactors.has(user.id)) {
-                                                        client.users.cache.get(user.id).send(text);
+                                                        client.users.cache.get(user.id).send("Here's a reminder that you've opted to receive:\n" + text);
                                                         reactors.add(user.id);
                                                     }
                                                 }
