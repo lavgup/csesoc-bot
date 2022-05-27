@@ -58,22 +58,30 @@ module.exports = {
             // List all the memes in embeds
             const embedList = [];
             for (let i = 0; i < totalMemes; i += memesPerPage) {
-                const curPage = [];
+
+                // Keep track of all the information for the current page
+                const ids = [];
+                const names = [];
+                const box_counts = [];
+
+                // Add the data of the current meme to the respective lists
                 curPageMemes = memeList.slice(i, i + memesPerPage);
-
                 for (const curMeme of curPageMemes) {
-                    const id = curMeme.id;
-                    const name = curMeme.name;
-                    const box_count = curMeme.box_count;
-
-                    // Should probably put them in columns or something
-                    curPage.push(`${name}, ID: ${id}, Box Count: ${box_count}`);
+                    ids.push(curMeme.id);
+                    names.push(curMeme.name);
+                    box_counts.push(curMeme.box_count);
                 }
 
                 embedList.push(
                     new MessageEmbed()
-                        .setTitle("Imgflip memes")
-                        .setDescription(curPage.join("\n")),
+                        .setColor("#0099ff")
+                        .setTitle("Imgflip meme list")
+                        .addFields(
+                            { name: 'ID', value: ids.join("\n"), inline: true },
+                            { name: 'Name', value: names.join("\n"), inline: true },
+                            { name: 'Number of boxes', value: box_counts.join("\n"), inline: true },
+
+                        )
                 );
             }
             
@@ -98,9 +106,11 @@ module.exports = {
             const url1 = "https://api.imgflip.com/get_memes"
             const memeListResult = await request(url1);
             const memeList = await getJSONResponse(memeListResult.body);
+            let name, box_count;
             for (const meme of memeList) {
                 if (meme.id == id) {
-                    var box_count = meme.box_count;
+                    name = meme.name;
+                    box_count = meme.box_count;
                     break;
                 }
             }
@@ -139,7 +149,15 @@ module.exports = {
             }
 
             memeLink = json.data.url;
-            return await interaction.reply(memeLink);
+            const embed = new MessageEmbed()
+                .setColor("#0099ff")
+                .setTitle(name)
+                .addField('Meme ID', id.toString(), true)
+                .addField('Number of text boxes', box_count.toString(), true)
+                .setImage(memeLink);
+            
+            // return await interaction.reply(memeLink);
+            return await interaction.reply({ embeds: [embed] });
 
         } else if (interaction.options.getSubcommand() === "create") {
 
@@ -181,7 +199,7 @@ module.exports = {
             // Send the POST request
             const rsp = await fetch(url, config);
             const json = await rsp.json();
-            console.log(rsp.status, json);
+            console.log(json);
             
             // Error checking for not success
             if (!json.success) {
@@ -191,7 +209,11 @@ module.exports = {
             }
 
             memeLink = json.data.url;
-            return await interaction.reply(memeLink);
+            const embed = new MessageEmbed()
+                .setColor("#0099ff")
+                .setImage(memeLink);
+            
+            return await interaction.reply({ embeds: [embed] });
         }
     }
 }
