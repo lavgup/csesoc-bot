@@ -2,9 +2,7 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 const paginationEmbed = require("discordjs-button-pagination");
 const { MessageEmbed, MessageButton } = require("discord.js");
 const { fetch, request } = require("undici");
-
-const username = 'SOME-USERNAME-HERE';
-const password = 'SOME-PASSWORD-HERE';
+const { username, password } = require("../config/memegenerator.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -139,12 +137,10 @@ module.exports = {
             // Send a POST request to generate the meme
             const rsp = await fetch(url2, config);
             const json = await rsp.json();
-            console.log(rsp.status, json);
             
             // Error checking for not success
             if (!json.success) {
                 error = json.error_message;
-                console.log(json.error_message);
                 return await interaction.reply( { content: 'Error: ' + error, ephemeral: true } );
             }
 
@@ -199,12 +195,10 @@ module.exports = {
             // Send the POST request
             const rsp = await fetch(url, config);
             const json = await rsp.json();
-            console.log(json);
             
             // Error checking for not success
             if (!json.success) {
                 error = json.error_message;
-                console.log(json.error_message);
                 return await interaction.reply( { content: 'Error: ' + error, ephemeral: true } );
             }
 
