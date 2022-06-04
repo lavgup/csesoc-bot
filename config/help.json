@@ -58,7 +58,7 @@
         {
             "name" : "Standup",
             "description" : "Weekly standups",
-            "usage" : "/standup <Check slash command for all options>")"
+            "usage" : "/standup <Check slash command for all options>"
         }
 
     ]

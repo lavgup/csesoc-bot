@@ -1,0 +1,32 @@
+{
+    "projects" : [
+        {
+            "name" : "Discord bot",
+            "description" : "UNSW CSESoc's Discord Bot, currently in use in the CSESoc Discord Server."
+        },{
+            "name" : "Circles",
+            "description" : "UNSW degree planner."
+        },{
+            "name" : "Freerooms",
+            "description" : "A web application designed to aid UNSW students in finding vacant rooms."
+        },{
+            "name" : "Notangles",
+            "description" : "The best tool to plan your weekly UNSW timetable with friends. Super easy, customisable, drag and drop. Now with autotimetabling to plan your timetable for you! Custom events and social timetabling coming soon!"
+        },{
+            "name" : "Structs.sh",
+            "description" : "An educational data structures and algorithms platform with an integrated visualiser, quiz and CMS."
+        },{
+            "name" : "Chaos",
+            "description" : "The eventual repository for the CSESoc Hiring Management System - used to manage sending and receiving of applications, interviews and results."
+        },{
+            "name" : "CS Electives",
+            "description" : "A website to review COMP electives."
+        },{
+            "name" : "CSESoc Website",
+            "description" : "UNSW CSESoc's website."
+        },{
+            "name" : "Jobs Board",
+            "description" : "A place where CSESoc students can look for relevant job opportunities."
+        }
+    ]
+}
