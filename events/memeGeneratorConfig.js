@@ -9,7 +9,7 @@ module.exports = {
             const data = messageContent.split('\n');
             
             if (!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-                return await message.reply("You do not have permissions to use this command.");
+                return await message.reply("You do not have permission to execute this command.");
             }
             if (data.length != 3) {
                 return await message.reply("Usage:\n$configMemeGenerator\nusername\npassword")
