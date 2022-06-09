@@ -11,7 +11,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName("list")
-                .setDescription("Lists the top 100 most popular memes from Imgflip and their ID"))
+                .setDescription("Lists the top 100 most popular memes from Imgflip"))
         .addSubcommand(subcommand =>
             subcommand
                 .setName("check")
@@ -27,6 +27,11 @@ module.exports = {
                 .addStringOption(option => option.setName("text3").setDescription("Text box 3"))
                 .addStringOption(option => option.setName("text4").setDescription("Text box 4"))
                 .addStringOption(option => option.setName("text5").setDescription("Text box 5")))
+        .addSubcommand(subcommand => 
+            subcommand
+                .setName("search")
+                .setDescription("Search for memes by name")
+                .addStringOption(option => option.setName("name").setDescription("Enter the name of the meme you want to search").setRequired(true)))
         ,
     
     async execute(interaction) {
@@ -42,6 +47,18 @@ module.exports = {
             const returnObject = JSON.parse(fullBody);
             return returnObject.data.memes;
         }
+
+        // 'Next' and 'Previous' buttons for embeds
+        const buttonList = [
+            new MessageButton()
+                .setCustomId("previousbtn")
+                .setLabel("Previous")
+                .setStyle("DANGER"),
+            new MessageButton()
+                .setCustomId("nextbtn")
+                .setLabel("Next")
+                .setStyle("SUCCESS"),
+        ];
 
         if (interaction.options.getSubcommand() === "list") {
 
@@ -82,21 +99,81 @@ module.exports = {
                         )
                 );
             }
+
+            return await paginationEmbed(interaction, embedList, buttonList);
+
+        } else if (interaction.options.getSubcommand() === "search") {
+            const query = interaction.options.getString("name");
+            const upperQuery = query.toUpperCase();
+
+            // Send API request to get the list of memes
+            const url = "https://api.imgflip.com/get_memes"
+            const memeListResult = await request(url);
+            const memeList = await getJSONResponse(memeListResult.body);
+            const totalMemes = memeList.length; // should be 100
+
+            // Keep track of all the information for each page
+            const ids = [];
+            const names = [];
+            const box_counts = [];
+            const embedList = [];
+            let numFound = 0;
+            for (let i = 0; i < totalMemes; i++) {
+
+                // Add the data of the current meme if it matches the query
+                const curMeme = memeList[i];
+                if (curMeme.name.toUpperCase().includes(upperQuery)) {
+                    ids.push(curMeme.id);
+                    names.push(curMeme.name);
+                    box_counts.push(curMeme.box_count);
+                    numFound++;
+                }
+                
+                // Push the list of memes to keep the size of embeds small
+                if (ids.length > 10) {
+                    embedList.push(
+                        new MessageEmbed()
+                            .setColor("#0099ff")
+                            .setTitle(`Search results for "${query}"`)
+                            .addFields(
+                                { name: 'ID', value: ids.join("\n"), inline: true },
+                                { name: 'Name', value: names.join("\n"), inline: true },
+                                { name: 'Number of boxes', value: box_counts.join("\n"), inline: true },
+                            )
+                    );
+                    
+                    // Clear all the arrays
+                    ids.splice(0, ids.length);
+                    names.splice(0, names.length);
+                    box_counts.splice(0, box_counts.length);
+                }
+            }
+
+            // No matching results
+            if (numFound === 0) {
+                const embed = new MessageEmbed()
+                    .setColor("#0099ff")
+                    .setTitle(`Search Results for "${query}"`)
+                    .setDescription("No matching memes found :(");
+
+                return await interaction.reply({ embeds: [embed] });
+            }
+
+            // Add the last page of memes
+            if (ids.length > 0) {
+                embedList.push(
+                    new MessageEmbed()
+                        .setColor("#0099ff")
+                        .setTitle(`Search results for "${query}"`)
+                        .addFields(
+                            { name: 'ID', value: ids.join("\n"), inline: true },
+                            { name: 'Name', value: names.join("\n"), inline: true },
+                            { name: 'Number of boxes', value: box_counts.join("\n"), inline: true },
+                        )
+                );
+            }
+            return await paginationEmbed(interaction, embedList, buttonList);
             
-            // Set the Next and Previous buttons
-            const buttonList = [
-                new MessageButton()
-                    .setCustomId("previousbtn")
-                    .setLabel("Previous")
-                    .setStyle("DANGER"),
-                new MessageButton()
-                    .setCustomId("nextbtn")
-                    .setLabel("Next")
-                    .setStyle("SUCCESS"),
-            ];
-
-            return paginationEmbed(interaction, embedList, buttonList);
-
         } else if (interaction.options.getSubcommand() === "check") {
             const id = await interaction.options.getInteger("id");
 
@@ -202,6 +279,7 @@ module.exports = {
                 return await interaction.reply( { content: 'Error: ' + error, ephemeral: true } );
             }
 
+            // Finally, send the meme the user created
             memeLink = json.data.url;
             const embed = new MessageEmbed()
                 .setColor("#0099ff")
