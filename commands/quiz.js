@@ -1,19 +1,22 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
+const fs = require("fs");
+const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discordjs/builders");
 
+let quizzes = [];
 
 //////////////////////////////////////////////
 ////////// SETTING UP THE COMMANDS ///////////
 //////////////////////////////////////////////
 
 const commandCreateQuiz = new SlashCommandSubcommandBuilder()
-    .setName("help")
-    .setDescription("Get some information about the help command")
+    .setName("create")
+    .setDescription("Create a new quiz")
     .addStringOption(option => option.setName("title").setDescription("Quiz title").setRequired(true));
 
 // base command
 const baseCommand = new SlashCommandBuilder()
     .setName("quiz")
-    .setDescription("Setup a quiz!");
+    .setDescription("Setup a quiz!")
+    .addSubcommand(commandCreateQuiz);
 
 //////////////////////////////////////////////
 /////////// HANDLING THE COMMANDS ////////////
@@ -28,7 +31,7 @@ async function handleInteraction(interaction) {
     // figure out which command was called
     const subcommand = interaction.options.getSubcommand(false);
     switch (subcommand) {
-        case "get":
+        case "create":
             handleCreateQuiz(interaction);
             break;
         default:
@@ -45,7 +48,19 @@ async function handleInteraction(interaction) {
  * @param {CommandInteraction} interaction
  */
 async function handleCreateQuiz(interaction) {
-    // TODO: implement
+    // get title
+    const title = String(interaction.options.get("title").value).toLowerCase();
+
+    for (const quiz of quizzes) {
+        if (quiz.title === title) {
+            await interaction.reply({content: "ERROR: Quiz already exists", ephemeral: true});
+            return;
+        }
+    }
+
+    quizzes.push({title: title});
+    await interaction.reply({content: `Sucessfully created quiz with title ${title}`, ephemeral: true});
+
     return;
 }
 
