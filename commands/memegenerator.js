@@ -14,6 +14,11 @@ module.exports = {
                 .setDescription("Lists the top 100 most popular memes from Imgflip"))
         .addSubcommand(subcommand =>
             subcommand
+                .setName("search")
+                .setDescription("Search for memes by name")
+                .addStringOption(option => option.setName("name").setDescription("Enter the name of the meme you want to search").setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
                 .setName("check")
                 .setDescription("Check the format of a meme")
                 .addIntegerOption(option => option.setName("id").setDescription("Enter the ID of the meme you want to check").setRequired(true)))
@@ -27,11 +32,6 @@ module.exports = {
                 .addStringOption(option => option.setName("text3").setDescription("Text box 3"))
                 .addStringOption(option => option.setName("text4").setDescription("Text box 4"))
                 .addStringOption(option => option.setName("text5").setDescription("Text box 5")))
-        .addSubcommand(subcommand => 
-            subcommand
-                .setName("search")
-                .setDescription("Search for memes by name")
-                .addStringOption(option => option.setName("name").setDescription("Enter the name of the meme you want to search").setRequired(true)))
         ,
     
     async execute(interaction) {
