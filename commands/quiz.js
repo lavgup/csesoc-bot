@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discordjs/builders");
+const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageActionRow, MessageButton } = require("@discordjs/builders");
 
 let quizzes = [];
 
@@ -180,7 +180,7 @@ async function handleCreateQuiz(interaction) {
  */
  async function handleStartQuiz(interaction) {
     // get title
-    const title = interaction.options.get("title").value;
+    const title = interaction.options.get("quiz-title").value;
 
     // check if quiz exists, and add question if so
     let quizFound = false; 
@@ -202,7 +202,7 @@ async function handleCreateQuiz(interaction) {
 
     // do quiz 
     const row = new MessageActionRow();
-    for (const answer of quiz.questions[0]) {
+    for (const answer of quiz.questions[0].answers) {
         row.addComponents(
             new MessageButton()
                 .setCustomId('1')
@@ -210,6 +210,7 @@ async function handleCreateQuiz(interaction) {
                 .setStyle('PRIMARY'),
         );
     }
+    
 
     await interaction.reply({ content: 'Quiz:', components: [row] });
 
