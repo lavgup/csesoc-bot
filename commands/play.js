@@ -1,11 +1,11 @@
-const { MessageEmbed, InteractionCollector } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { Player } = require("discord-music-player");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("play")
-    .setDescription("Song guessing")
+    .setDescription("Song guessing game!")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("snippet")
@@ -14,6 +14,11 @@ module.exports = {
           option
             .setName("link")
             .setDescription("Link to a Spotify song or playlist")
+        )
+        .addStringOption((option) =>
+          option
+            .setName("difficulty")
+            .setDescription("Easy, Medium, Hard; default = Medium")
         )
     )
     .addSubcommand((subcommand) =>
@@ -39,7 +44,8 @@ module.exports = {
   async execute(interaction) {
     if (interaction.options.getSubcommand() === "snippet") {
       const vc_channel = interaction.member.voice.channel;
-      const link = await interaction.options.getString("link");
+      let link = await interaction.options.getString("link");
+      let difficulty = await interaction.options.getString("difficulty");
       const text_channel_id = interaction.channelId;
       const text_channel =
         interaction.client.channels.cache.get(text_channel_id);
@@ -56,6 +62,11 @@ module.exports = {
         let queue = client.player.createQueue(interaction.guild.id);
         await queue.join(vc_channel);
 
+        if (!link) {
+          link =
+            "https://open.spotify.com/playlist/37i9dQZF1DWUa8ZRTfalHk?si=c986438d36a245ff";
+        }
+
         if (link.includes("track")) {
           queue.play(link).then(() =>
             text_channel.send({
@@ -67,7 +78,15 @@ module.exports = {
             })
           );
         } else if (link.includes("playlist")) {
-          await queue.playlist(link);
+          queue.playlist(link);
+          interaction.reply({
+            embeds: [
+              new MessageEmbed()
+                .setColor("#C492B1")
+                .setDescription("Playing a snippet..."),
+            ],
+            ephemeral: true,
+          });
         } else {
           await interaction.reply({
             embeds: [
@@ -75,6 +94,32 @@ module.exports = {
                 .setColor("#C492B1")
                 .setDescription(
                   ":x: You must provide a Spotify song or playlist!"
+                ),
+            ],
+          });
+        }
+
+        var playtime = 1000;
+
+        // Default difficulty
+        if (!difficulty) {
+          difficulty = "medium";
+        }
+
+        difficulty = difficulty.toLowerCase();
+        if (difficulty === "easy") {
+          playtime = playtime * 32;
+        } else if (difficulty === "medium") {
+          playtime = playtime * 22;
+        } else if (difficulty === "hard") {
+          playtime = playtime * 12;
+        } else {
+          await interaction.reply({
+            embeds: [
+              new MessageEmbed()
+                .setColor("#C492B1")
+                .setDescription(
+                  ":x: Please enter a valid difficulty - easy, medium or hard."
                 ),
             ],
           });
@@ -89,7 +134,7 @@ module.exports = {
                 .setDescription("Guess the song!"),
             ],
           });
-        }, 1000 * 12);
+        }, playtime);
       } else {
         await interaction.reply({
           embeds: [
@@ -107,6 +152,18 @@ module.exports = {
               .setColor("#C492B1")
               .setDescription(
                 ":x: Play a snippet first using /play snippet [link] in order to guess the song!"
+              ),
+          ],
+        });
+      } else if (
+        !interaction.client.player.getQueue(interaction.guild.id).paused
+      ) {
+        await interaction.reply({
+          embeds: [
+            new MessageEmbed()
+              .setColor("#C492B1")
+              .setDescription(
+                ":x: Please wait until the snippet has finished playing."
               ),
           ],
         });
