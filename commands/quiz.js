@@ -25,13 +25,19 @@ const commandCreateAnswer = new SlashCommandSubcommandBuilder()
     .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true))
     .addStringOption(option => option.setName("answer").setDescription("The answer").setRequired(true));
 
+const commandStartQuiz = new SlashCommandSubcommandBuilder()
+    .setName("start")
+    .setDescription("Create a new answer for a question")
+    .addStringOption(option => option.setName("quiz-title").setDescription("Quiz title").setRequired(true));
+
 // base command
 const baseCommand = new SlashCommandBuilder()
     .setName("quiz")
     .setDescription("Setup a quiz!")
     .addSubcommand(commandCreateQuiz)
     .addSubcommand(commandCreateQuestion)
-    .addSubcommand(commandCreateAnswer);
+    .addSubcommand(commandCreateAnswer)
+    .addSubcommand(commandStartQuiz);
 
 //////////////////////////////////////////////
 /////////// HANDLING THE COMMANDS ////////////
@@ -54,6 +60,9 @@ async function handleInteraction(interaction) {
             break;
         case "create-answer":
             handleCreateAnswer(interaction);
+            break;
+        case "start":
+            handleStartQuiz(interaction);
             break;
         default:
             await interaction.reply("Internal Error. Please contact Discord Bot team.");
@@ -136,14 +145,13 @@ async function handleCreateQuiz(interaction) {
 
     if (!quizFound) {
         await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
-    } else {
-        await interaction.reply({content: `Sucessfully added question to ${title}.`, ephemeral: true});
+        return;
     }
 
     // check if question exists, and add answer if so
     let questionFound = false;
-    for (const q of quiz.quizzes) {
-        if (q === question) {
+    for (const q of quiz.questions) {
+        if (q.question === question) {
             // check if max questions reached
             if (q.answers.length >= 4) {
                 await interaction.reply({content: `Question has 4 answers already! Can't add more.`, ephemeral: true});
@@ -152,6 +160,9 @@ async function handleCreateQuiz(interaction) {
 
             // add answer
             q.answers.push(answer);
+
+            questionFound = true;
+            break;
         }
     }
 
@@ -163,6 +174,48 @@ async function handleCreateQuiz(interaction) {
 
     return;
 }
+
+/** 
+ * @param {CommandInteraction} interaction
+ */
+ async function handleStartQuiz(interaction) {
+    // get title
+    const title = interaction.options.get("title").value;
+
+    // check if quiz exists, and add question if so
+    let quizFound = false; 
+    let quiz = null;
+    for (const q of quizzes) {
+        if (q.title === title) {
+            quizFound = true;
+            quiz = q;
+            break;
+        }
+    }
+
+    if (!quizFound) {
+        await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
+        return;
+    }
+
+    // TODO: further validation?
+
+    // do quiz 
+    const row = new MessageActionRow();
+    for (const answer of quiz.questions[0]) {
+        row.addComponents(
+            new MessageButton()
+                .setCustomId('1')
+                .setLabel(answer)
+                .setStyle('PRIMARY'),
+        );
+    }
+
+    await interaction.reply({ content: 'Quiz:', components: [row] });
+
+    return;
+}
+
 
 
 module.exports = {
