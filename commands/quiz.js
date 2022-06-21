@@ -18,12 +18,20 @@ const commandCreateQuestion = new SlashCommandSubcommandBuilder()
     .addStringOption(option => option.setName("quiz-title").setDescription("Quiz title").setRequired(true))
     .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true));
 
+const commandCreateAnswer = new SlashCommandSubcommandBuilder()
+    .setName("create-answer")
+    .setDescription("Create a new answer for a question")
+    .addStringOption(option => option.setName("quiz-title").setDescription("Quiz title").setRequired(true))
+    .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true))
+    .addStringOption(option => option.setName("answer").setDescription("The answer").setRequired(true));
+
 // base command
 const baseCommand = new SlashCommandBuilder()
     .setName("quiz")
     .setDescription("Setup a quiz!")
     .addSubcommand(commandCreateQuiz)
-    .addSubcommand(commandCreateQuestion);
+    .addSubcommand(commandCreateQuestion)
+    .addSubcommand(commandCreateAnswer);
 
 //////////////////////////////////////////////
 /////////// HANDLING THE COMMANDS ////////////
@@ -44,8 +52,11 @@ async function handleInteraction(interaction) {
         case "create-question":
             handleCreateQuestion(interaction);
             break;
+        case "create-answer":
+            handleCreateAnswer(interaction);
+            break;
         default:
-            await interaction.reply("Internal Error AHHHHHHH! CONTACT ME PLEASE!");
+            await interaction.reply("Internal Error. Please contact Discord Bot team.");
     }
 }
 
@@ -82,6 +93,7 @@ async function handleCreateQuiz(interaction) {
     const title = interaction.options.get("quiz-title").value;
     const question = interaction.options.get("question").value;
 
+    // check if quiz exists, and add question if so
     let quizFound = false; 
     for (const quiz of quizzes) {
         if (quiz.title === title) {
@@ -103,6 +115,54 @@ async function handleCreateQuiz(interaction) {
     return;
 }
 
+/** 
+ * @param {CommandInteraction} interaction
+ */
+ async function handleCreateAnswer(interaction) {
+    const title = interaction.options.get("quiz-title").value;
+    const question = interaction.options.get("question").value;
+    const answer = interaction.options.get("answer").value;
+
+    // check if quiz exists
+    let quizFound = false; 
+    let quiz = null;
+    for (const q of quizzes) {
+        if (q.title === title) {
+            quizFound = true;
+            quiz = q;
+            break;
+        }
+    }
+
+    if (!quizFound) {
+        await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
+    } else {
+        await interaction.reply({content: `Sucessfully added question to ${title}.`, ephemeral: true});
+    }
+
+    // check if question exists, and add answer if so
+    let questionFound = false;
+    for (const q of quiz.quizzes) {
+        if (q === question) {
+            // check if max questions reached
+            if (q.answers.length >= 4) {
+                await interaction.reply({content: `Question has 4 answers already! Can't add more.`, ephemeral: true});
+                break;
+            }
+
+            // add answer
+            q.answers.push(answer);
+        }
+    }
+
+    if (!questionFound) {
+        await interaction.reply({content: `Question ${question} in quiz ${title} does not exist`, ephemeral: true});
+    } else {
+        await interaction.reply({content: `Sucessfully added answer to ${question} in quiz ${title}.`, ephemeral: true});
+    }
+
+    return;
+}
 
 
 module.exports = {
