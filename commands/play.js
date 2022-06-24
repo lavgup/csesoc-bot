@@ -5,7 +5,7 @@ const { Player } = require("discord-music-player");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("play")
-    .setDescription("Song guessing game!")
+    .setDescription("Song guessing game!!")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("snippet")
@@ -13,24 +13,29 @@ module.exports = {
         .addStringOption((option) =>
           option
             .setName("link")
-            .setDescription("Link to a Spotify song or playlist")
+            .setDescription(
+              "Link to a Spotify song or playlist. Leave this empty for a default playlist."
+            )
         )
         .addStringOption((option) =>
           option
             .setName("difficulty")
-            .setDescription("Easy, Medium, Hard; default = Medium")
+            .setDescription(
+              "Choose between easy (30s snippet), medium (20s) and hard (10s); default = medium."
+            )
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("guess")
-        .setDescription("Guess the song snippet that was played")
+        .setDescription("Guess the name of the song snippet that was played.")
         .addStringOption((option) =>
           option
             .setName("songname")
             .setDescription(
               "What is the name of the song that was just played?"
             )
+            .setRequired(true)
         )
     )
     .addSubcommand((subcommand) =>
@@ -62,21 +67,22 @@ module.exports = {
         let queue = client.player.createQueue(interaction.guild.id);
         await queue.join(vc_channel);
 
+        // Default playlist
         if (!link) {
           link =
             "https://open.spotify.com/playlist/37i9dQZF1DWUa8ZRTfalHk?si=c986438d36a245ff";
         }
 
         if (link.includes("track")) {
-          queue.play(link).then(() =>
-            text_channel.send({
-              embeds: [
-                new MessageEmbed()
-                  .setColor("#C492B1")
-                  .setDescription("Playing a snippet..."),
-              ],
-            })
-          );
+          queue.play(link);
+          interaction.reply({
+            embeds: [
+              new MessageEmbed()
+                .setColor("#C492B1")
+                .setDescription("Playing a snippet..."),
+            ],
+            ephemeral: true,
+          });
         } else if (link.includes("playlist")) {
           queue.playlist(link);
           interaction.reply({
@@ -93,7 +99,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: You must provide a Spotify song or playlist!"
+                  ":x: You must provide a Spotify song or playlist, or leave the field empty for a default playlist."
                 ),
             ],
           });
@@ -119,7 +125,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: Please enter a valid difficulty - easy, medium or hard."
+                  ":x: Please enter a valid difficulty - easy, medium or hard, or leave the field empty for the default difficulty of medium."
                 ),
             ],
           });
@@ -131,7 +137,9 @@ module.exports = {
             embeds: [
               new MessageEmbed()
                 .setColor("#C492B1")
-                .setDescription("Guess the song!"),
+                .setDescription(
+                  "Guess the song using `/play guess [songname]` command!"
+                ),
             ],
           });
         }, playtime);
@@ -151,7 +159,7 @@ module.exports = {
             new MessageEmbed()
               .setColor("#C492B1")
               .setDescription(
-                ":x: Play a snippet first using /play snippet [link] in order to guess the song!"
+                ":x: Play a snippet first using `/play snippet [link]` in order to guess the song!"
               ),
           ],
         });
@@ -163,7 +171,7 @@ module.exports = {
             new MessageEmbed()
               .setColor("#C492B1")
               .setDescription(
-                ":x: Please wait until the snippet has finished playing."
+                ":x: Please wait until the snippet has finished playing before guessing."
               ),
           ],
         });
@@ -178,7 +186,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: Play a snippet first using /play snippet [link] in order to guess the song!"
+                  ":x: Play a snippet first using `/play snippet [link]` in order to guess the song!"
                 ),
             ],
           });
@@ -204,7 +212,7 @@ module.exports = {
             new MessageEmbed()
               .setColor("#C492B1")
               .setDescription(
-                ":x: Use /play snippet [link] to add songs to the queue."
+                ":x: Use `/play snippet [link]` to add songs to the queue."
               ),
           ],
         });
@@ -223,7 +231,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: There are no more songs queued, use /play snippet [link] to add another!"
+                  ":x: There are no more songs queued, use `/play snippet [link]` to add more!"
                 ),
             ],
           });
@@ -236,7 +244,7 @@ module.exports = {
             new MessageEmbed()
               .setColor("#C492B1")
               .setDescription(
-                ":x: Use /play snippet [link] to add songs to the queue."
+                ":x: Use `/play snippet [link]` to add songs to the queue."
               ),
           ],
         });
@@ -247,7 +255,7 @@ module.exports = {
           queue.setPaused(false);
           setTimeout(function () {
             queue.setPaused(true);
-          }, 1000 * 10);
+          }, 1000 * 20);
         } else {
           await interaction.reply({
             embeds: [
