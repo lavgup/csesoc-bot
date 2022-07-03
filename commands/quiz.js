@@ -1,5 +1,5 @@
-const fs = require("fs");
-const { SlashCommandBuilder, SlashCommandSubcommandBuilder, MessageActionRow, MessageButton } = require("@discordjs/builders");
+const { MessageActionRow, MessageButton } = require("discord.js");
+const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discordjs/builders");
 
 let quizzes = [];
 
@@ -46,8 +46,13 @@ const baseCommand = new SlashCommandBuilder()
 // handle the command
 /** @param {CommandInteraction} interaction */
 async function handleInteraction(interaction) {
-    // /** @type {DBFaq} */
-    // const faqStorage = global.faqStorage;
+    if (interaction.isButton()) {
+        console.log("We can detect buttons!");
+    }
+    console.log("its a quiz interaction");
+
+    console.log(interaction);
+    console.log(interaction.options);
 
     // figure out which command was called
     const subcommand = interaction.options.getSubcommand(false);
@@ -216,10 +221,3 @@ async function handleCreateQuiz(interaction) {
 
     return;
 }
-
-
-
-module.exports = {
-    data: baseCommand,
-    execute: handleInteraction,
-};
