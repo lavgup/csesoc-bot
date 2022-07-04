@@ -16,6 +16,7 @@ module.exports = {
             }
 
             fs.writeFileSync("./config/memegenerator.json", JSON.stringify({ username: data[1], password: data[2] }, null, 4));
+            return await message.reply({ content: "Username and password updated. Please restart the bot to ensure that the changes are properly applied.", ephemeral: true });
         }
     }
 }
