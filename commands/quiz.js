@@ -1,7 +1,4 @@
-const { MessageActionRow, MessageButton } = require("discord.js");
 const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discordjs/builders");
-
-let quizzes = [];
 
 //////////////////////////////////////////////
 ////////// SETTING UP THE COMMANDS ///////////
@@ -46,28 +43,23 @@ const baseCommand = new SlashCommandBuilder()
 // handle the command
 /** @param {CommandInteraction} interaction */
 async function handleInteraction(interaction) {
-    if (interaction.isButton()) {
-        console.log("We can detect buttons!");
-    }
-    console.log("its a quiz interaction");
-
-    console.log(interaction);
-    console.log(interaction.options);
+    /** @type {QuizStore} */
+    const quizStore = global.quizStore;
 
     // figure out which command was called
     const subcommand = interaction.options.getSubcommand(false);
     switch (subcommand) {
         case "create-quiz":
-            handleCreateQuiz(interaction);
+            handleCreateQuiz(interaction, quizStore);
             break;
         case "create-question":
-            handleCreateQuestion(interaction);
+            handleCreateQuestion(interaction, quizStore);
             break;
         case "create-answer":
-            handleCreateAnswer(interaction);
+            handleCreateAnswer(interaction, quizStore);
             break;
         case "start":
-            handleStartQuiz(interaction);
+            handleStartQuiz(interaction, quizStore);
             break;
         default:
             await interaction.reply("Internal Error. Please contact Discord Bot team.");
@@ -81,143 +73,41 @@ async function handleInteraction(interaction) {
 
 /** 
  * @param {CommandInteraction} interaction
+ * @param {QuizStore} quizStore
  */
-async function handleCreateQuiz(interaction) {
-    // get title
-    const title = interaction.options.get("title").value;
-
-    for (const quiz of quizzes) {
-        if (quiz.title === title) {
-            await interaction.reply({content: "ERROR: Quiz already exists", ephemeral: true});
-            return;
-        }
-    }
-
-    quizzes.push({title: title, questions: []});
-    await interaction.reply({content: `Sucessfully created quiz with title ${title}`, ephemeral: true});
-
+async function handleCreateQuiz(interaction, quizStore) {
+    quizStore.createQuiz(interaction);
     return;
 }
 
 /** 
  * @param {CommandInteraction} interaction
+ * @param {QuizStore} quizStore
  */
- async function handleCreateQuestion(interaction) {
-    // get title
-    const title = interaction.options.get("quiz-title").value;
-    const question = interaction.options.get("question").value;
-
-    // check if quiz exists, and add question if so
-    let quizFound = false; 
-    for (const quiz of quizzes) {
-        if (quiz.title === title) {
-            quizFound = true;
-            quiz.questions.push({
-                "question": question,
-                "answers" : []
-            });
-            break;
-        }
-    }
-
-    if (!quizFound) {
-        await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
-    } else {
-        await interaction.reply({content: `Sucessfully added question to ${title}.`, ephemeral: true});
-    }
-
+ async function handleCreateQuestion(interaction, quizStore) {
+    quizStore.createQuestion(interaction);
     return;
 }
 
 /** 
  * @param {CommandInteraction} interaction
+ * @param {QuizStore} quizStore
  */
- async function handleCreateAnswer(interaction) {
-    const title = interaction.options.get("quiz-title").value;
-    const question = interaction.options.get("question").value;
-    const answer = interaction.options.get("answer").value;
-
-    // check if quiz exists
-    let quizFound = false; 
-    let quiz = null;
-    for (const q of quizzes) {
-        if (q.title === title) {
-            quizFound = true;
-            quiz = q;
-            break;
-        }
-    }
-
-    if (!quizFound) {
-        await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
-        return;
-    }
-
-    // check if question exists, and add answer if so
-    let questionFound = false;
-    for (const q of quiz.questions) {
-        if (q.question === question) {
-            // check if max questions reached
-            if (q.answers.length >= 4) {
-                await interaction.reply({content: `Question has 4 answers already! Can't add more.`, ephemeral: true});
-                break;
-            }
-
-            // add answer
-            q.answers.push(answer);
-
-            questionFound = true;
-            break;
-        }
-    }
-
-    if (!questionFound) {
-        await interaction.reply({content: `Question ${question} in quiz ${title} does not exist`, ephemeral: true});
-    } else {
-        await interaction.reply({content: `Sucessfully added answer to ${question} in quiz ${title}.`, ephemeral: true});
-    }
-
+ async function handleCreateAnswer(interaction, quizStore) {
+    quizStore.createAnswer(interaction);
     return;
 }
 
 /** 
  * @param {CommandInteraction} interaction
+ * @param {QuizStore} quizStore
  */
- async function handleStartQuiz(interaction) {
-    // get title
-    const title = interaction.options.get("quiz-title").value;
-
-    // check if quiz exists, and add question if so
-    let quizFound = false; 
-    let quiz = null;
-    for (const q of quizzes) {
-        if (q.title === title) {
-            quizFound = true;
-            quiz = q;
-            break;
-        }
-    }
-
-    if (!quizFound) {
-        await interaction.reply({content: `Quiz with title ${title} does not exist`, ephemeral: true});
-        return;
-    }
-
-    // TODO: further validation?
-
-    // do quiz 
-    const row = new MessageActionRow();
-    for (const answer of quiz.questions[0].answers) {
-        row.addComponents(
-            new MessageButton()
-                .setCustomId('1')
-                .setLabel(answer)
-                .setStyle('PRIMARY'),
-        );
-    }
-    
-
-    await interaction.reply({ content: 'Quiz:', components: [row] });
-
+ async function handleStartQuiz(interaction, quizStore) {
+    quizStore.startQuiz(interaction);
     return;
+}
+
+module.exports = {
+    data: baseCommand,
+    execute: handleInteraction
 }
