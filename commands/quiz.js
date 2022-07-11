@@ -13,14 +13,16 @@ const commandCreateQuestion = new SlashCommandSubcommandBuilder()
     .setName("create-question")
     .setDescription("Create a new question for a quiz")
     .addStringOption(option => option.setName("quiz-title").setDescription("Quiz title").setRequired(true))
-    .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true));
+    .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true))
+    .addBooleanOption(option => option.setName("is-mult-choice").setDescription("Is question multiple choice?").setRequired(true));
 
 const commandCreateAnswer = new SlashCommandSubcommandBuilder()
     .setName("create-answer")
     .setDescription("Create a new answer for a question")
     .addStringOption(option => option.setName("quiz-title").setDescription("Quiz title").setRequired(true))
     .addStringOption(option => option.setName("question").setDescription("The question").setRequired(true))
-    .addStringOption(option => option.setName("answer").setDescription("The answer").setRequired(true));
+    .addStringOption(option => option.setName("answer").setDescription("The answer").setRequired(true))
+    .addBooleanOption(option => option.setName("is-correct").setDescription("Is answer correct?").setRequired(true));
 
 const commandStartQuiz = new SlashCommandSubcommandBuilder()
     .setName("start")
