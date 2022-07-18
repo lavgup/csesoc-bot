@@ -1,11 +1,14 @@
 const { MessageEmbed } = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { Player } = require("discord-music-player");
+const path = require("path");
+const fs = require("fs");
+const fuzzy = require("fuzzy.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("play")
-    .setDescription("Song guessing game!!")
+    .setName("song")
+    .setDescription("Song guessing game!")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("snippet")
@@ -14,7 +17,7 @@ module.exports = {
           option
             .setName("link")
             .setDescription(
-              "Link to a Spotify song or playlist. Leave this empty for a default playlist."
+              "Link to a YouTube song or playlist. Leave this empty for a default playlist."
             )
         )
         .addStringOption((option) =>
@@ -51,6 +54,7 @@ module.exports = {
       const vc_channel = interaction.member.voice.channel;
       let link = await interaction.options.getString("link");
       let difficulty = await interaction.options.getString("difficulty");
+
       const text_channel_id = interaction.channelId;
       const text_channel =
         interaction.client.channels.cache.get(text_channel_id);
@@ -70,36 +74,41 @@ module.exports = {
         // Default playlist
         if (!link) {
           link =
-            "https://open.spotify.com/playlist/37i9dQZF1DWUa8ZRTfalHk?si=c986438d36a245ff";
+            "https://www.youtube.com/playlist?list=PLDIoUOhQQPlXr63I_vwF9GD8sAKh77dWU";
         }
 
-        if (link.includes("track")) {
-          queue.play(link);
-          interaction.reply({
-            embeds: [
-              new MessageEmbed()
-                .setColor("#C492B1")
-                .setDescription("Playing a snippet..."),
-            ],
-            ephemeral: true,
-          });
-        } else if (link.includes("playlist")) {
-          queue.playlist(link);
-          interaction.reply({
-            embeds: [
-              new MessageEmbed()
-                .setColor("#C492B1")
-                .setDescription("Playing a snippet..."),
-            ],
-            ephemeral: true,
-          });
+        if (link.includes("youtube") || link.includes("youtu.be")) {
+          if (link.includes("playlist")) {
+            queue.playlist(link);
+            interaction.reply({
+              embeds: [
+                new MessageEmbed()
+                  .setColor("#C492B1")
+                  .setDescription("Playing a snippet"),
+              ],
+              ephemeral: true,
+            });
+          } else {
+            link.includes("?t=")
+              ? queue.play(link, { timecode: true })
+              : queue.play(link);
+
+            interaction.reply({
+              embeds: [
+                new MessageEmbed()
+                  .setColor("#C492B1")
+                  .setDescription("Playing a snippet"),
+              ],
+              ephemeral: true,
+            });
+          }
         } else {
           await interaction.reply({
             embeds: [
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: You must provide a Spotify song or playlist, or leave the field empty for a default playlist."
+                  ":x: You must provide a YouTube song or playlist, or leave the `link` field empty for a default playlist."
                 ),
             ],
           });
@@ -114,18 +123,18 @@ module.exports = {
 
         difficulty = difficulty.toLowerCase();
         if (difficulty === "easy") {
-          playtime = playtime * 32;
+          playtime = playtime * 37;
         } else if (difficulty === "medium") {
-          playtime = playtime * 22;
+          playtime = playtime * 27;
         } else if (difficulty === "hard") {
-          playtime = playtime * 12;
+          playtime = playtime * 17;
         } else {
           await interaction.reply({
             embeds: [
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: Please enter a valid difficulty - easy, medium or hard, or leave the field empty for the default difficulty of medium."
+                  ":x: Please enter a valid difficulty - easy, medium or hard, or leave the `diffculty` field empty."
                 ),
             ],
           });
@@ -138,7 +147,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  "Guess the song using `/play guess [songname]` command!"
+                  "Guess the song using `/song guess [songname]` command!"
                 ),
             ],
           });
@@ -159,7 +168,7 @@ module.exports = {
             new MessageEmbed()
               .setColor("#C492B1")
               .setDescription(
-                ":x: Play a snippet first using `/play snippet [link]` in order to guess the song!"
+                ":x: Play a snippet first using `/song snippet [link]` in order to start guessing songs!"
               ),
           ],
         });
@@ -186,7 +195,7 @@ module.exports = {
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: Play a snippet first using `/play snippet [link]` in order to guess the song!"
+                  ":x: Play a snippet first using `/song snippet [link]` in order to start guessing songs!"
                 ),
             ],
           });
@@ -197,7 +206,10 @@ module.exports = {
         const guess = await interaction.options.getString("songname");
 
         let res = "";
-        name.includes(guess.toLowerCase())
+        fuzzy.analyzeSubTerms = false;
+        var match = fuzzy(name, guess.toLowerCase());
+
+        name.includes(guess.toLowerCase()) && match.score > name.length / 3
           ? (res = res.concat("Correct!\n"))
           : (res = res.concat("Incorrect :(\n"));
 
@@ -211,27 +223,25 @@ module.exports = {
           embeds: [
             new MessageEmbed()
               .setColor("#C492B1")
-              .setDescription(
-                ":x: Use `/play snippet [link]` to add songs to the queue."
-              ),
+              .setDescription(":x: There are no songs in the queue."),
           ],
         });
       } else {
         const queue = interaction.client.player.getQueue(interaction.guild.id);
-        if (queue.songs.length >= 1) {
+        if (queue.songs.length > 1) {
           queue.skip();
           queue.setPaused(false);
 
           setTimeout(function () {
             queue.setPaused(true);
-          }, 1000 * 10);
+          }, 1000 * 20);
         } else {
           await interaction.reply({
             embeds: [
               new MessageEmbed()
                 .setColor("#C492B1")
                 .setDescription(
-                  ":x: There are no more songs queued, use `/play snippet [link]` to add more!"
+                  ":x: There are no more songs queued, use `/song snippet [link]` to add more!"
                 ),
             ],
           });
@@ -243,9 +253,7 @@ module.exports = {
           embeds: [
             new MessageEmbed()
               .setColor("#C492B1")
-              .setDescription(
-                ":x: Use `/play snippet [link]` to add songs to the queue."
-              ),
+              .setDescription(":x: There are no songs in the queue."),
           ],
         });
       } else {
